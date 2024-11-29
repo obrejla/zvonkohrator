@@ -24,47 +24,11 @@ class LCD1602:
         print(string)
 
 
-# from gpiozero import LED
-class LED:
-    def __init__(self, gpio_id):
-        self.gpio_id = gpio_id
-
-    def __str__(self):
-        return f"{self.gpio_id}"
-
-
 # _X __ __ channel
 # 9_ __ __ note on
 # 8_ __ __ note off
 # __ 0X __ note number
 # __ __ 0X velocity
-
-
-gpio_C2 = LED(4)
-gpio_Cis2 = LED(5)
-gpio_D2 = LED(6)
-gpio_Dis2 = LED(12)
-gpio_E2 = LED(16)
-gpio_F2 = LED(17)
-gpio_Fis2 = LED(18)
-gpio_G2 = LED(19)
-gpio_Gis2 = LED(20)
-gpio_A2 = LED(21)
-gpio_B2 = LED(22)
-gpio_H2 = LED(23)
-gpio_C3 = LED(334)
-gpio_Cis3 = LED(335)
-gpio_D3 = LED(336)
-gpio_Dis3 = LED(3312)
-gpio_E3 = LED(3316)
-gpio_F3 = LED(3317)
-gpio_Fis3 = LED(3318)
-gpio_G3 = LED(3319)
-gpio_Gis3 = LED(3320)
-gpio_A3 = LED(3321)
-gpio_B3 = LED(3322)
-gpio_H3 = LED(3323)
-gpio_C4 = LED(444)
 
 C2 = 36
 Cis2 = 37
@@ -95,31 +59,31 @@ C4 = 60
 octave = 12
 
 playable_tones = {
-    C2: ("C2", gpio_C2),
-    Cis2: ("Cis2", gpio_Cis2),
-    D2: ("D2", gpio_D2),
-    Dis2: ("Dis2", gpio_Dis2),
-    E2: ("E2", gpio_E2),
-    F2: ("F2", gpio_F2),
-    Fis2: ("Fis2", gpio_Fis2),
-    G2: ("G2", gpio_G2),
-    Gis2: ("Gis2", gpio_Gis2),
-    A2: ("A2", gpio_A2),
-    B2: ("B2", gpio_B2),
-    H2: ("H2", gpio_H2),
-    C3: ("C3", gpio_C3),
-    Cis3: ("Cis3", gpio_Cis3),
-    D3: ("D3", gpio_D3),
-    Dis3: ("Dis3", gpio_Dis3),
-    E3: ("E3", gpio_E3),
-    F3: ("F3", gpio_F3),
-    Fis3: ("Fis3", gpio_Fis3),
-    G3: ("G3", gpio_G3),
-    Gis3: ("Gis3", gpio_Gis3),
-    A3: ("A3", gpio_A3),
-    B3: ("B3", gpio_B3),
-    H3: ("H3", gpio_H3),
-    C4: ("C4", gpio_C4),
+    C2: "C2",
+    Cis2: "Cis2",
+    D2: "D2",
+    Dis2: "Dis2",
+    E2: "E2",
+    F2: "F2",
+    Fis2: "Fis2",
+    G2: "G2",
+    Gis2: "Gis2",
+    A2: "A2",
+    B2: "B2",
+    H2: "H2",
+    C3: "C3",
+    Cis3: "Cis3",
+    D3: "D3",
+    Dis3: "Dis3",
+    E3: "E3",
+    F3: "F3",
+    Fis3: "Fis3",
+    G3: "G3",
+    Gis3: "Gis3",
+    A3: "A3",
+    B3: "B3",
+    H3: "H3",
+    C4: "C4",
 }
 
 
@@ -147,14 +111,14 @@ def find_playable_tone(note):
 
 def note_on(note, velocity):
     playable_tone = find_playable_tone(note)
-    (playable_name, playable_gpio) = playable_tones[playable_tone]
+    playable_name = playable_tones[playable_tone]
     lcd.clear()
     lcd.setCursor(6, 0)
     lcd.printout(f"{playable_name}!")
     lcd.setCursor(2, 1)
     lcd.printout("...a necum!!")
     print(
-        f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}\tgpio={playable_gpio}")
+        f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
     ser.write(f"{playable_tone}\r".encode())
     response = ser.readline().strip()
     print(response)
@@ -162,9 +126,9 @@ def note_on(note, velocity):
 
 def note_off(note, velocity):
     playable_tone = find_playable_tone(note)
-    (playable_name, playable_gpio) = playable_tones[playable_tone]
+    playable_name = playable_tones[playable_tone]
     print(
-        f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}\tgpio={playable_gpio}")
+        f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
     ser.write(f"{playable_tone}\r".encode())
     response = ser.readline().strip()
     print(response)
