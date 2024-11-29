@@ -8,7 +8,7 @@ from serial import Serial
 ser = Serial("/dev/cu.usbmodem11101", 9600)
 
 
-# from LCD1602 import LCD1602
+# from LCD1602.LCD1602 import LCD1602
 class LCD1602:
     def __init__(self, cols, rows):
         self.cols = cols
