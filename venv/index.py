@@ -2,7 +2,10 @@ import time
 import rtmidi
 from serial import Serial
 
-ser = Serial("/dev/cu.usbmodem1201", 9600)
+# USB hub - domaci
+# ser = Serial("/dev/cu.usbmodem1201", 9600)
+# USB hub - cestovni
+ser = Serial("/dev/cu.usbmodem11101", 9600)
 
 
 # from LCD1602 import LCD1602
