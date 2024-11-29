@@ -1,12 +1,6 @@
 import time
 import rtmidi
 from serial import Serial
-
-# USB hub - domaci
-# ser = Serial("/dev/cu.usbmodem1201", 9600)
-# USB hub - cestovni
-ser = Serial("/dev/cu.usbmodem11101", 9600)
-
 from LCD1602.LCD1602Mock import LCD1602
 
 # _X __ __ channel
@@ -153,6 +147,10 @@ def connect_midi_device():
     return midi_in
 
 
+# USB hub - domaci
+# ser = Serial("/dev/cu.usbmodem1201", 9600)
+# USB hub - cestovni
+ser = Serial("/dev/cu.usbmodem11101", 9600)
 midi = connect_midi_device()
 lcd = LCD1602(16, 2)
 try:
