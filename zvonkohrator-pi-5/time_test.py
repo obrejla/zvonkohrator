@@ -1,7 +1,7 @@
 import LCD1602
 import time
 
-lcd=LCD1602.LCD1602(16,2)
+lcd = LCD1602.LCD1602(16, 2)
 
 try:
     while True:
@@ -10,8 +10,8 @@ try:
         # print the number of seconds since reset:
 
         # print the number of seconds since reset:
-        T=time.ctime().split()
-        lcd.printout(T[-1]+' '+T[1]+' '+T[2]+' '+T[0])
+        T = time.ctime().split()
+        lcd.printout(T[-1] + ' ' + T[1] + ' ' + T[2] + ' ' + T[0])
 
         lcd.setCursor(0, 1)
 

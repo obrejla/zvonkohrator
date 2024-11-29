@@ -1,6 +1,5 @@
 import LCD1602
 import time
-import math
 
 lcd = LCD1602.LCD1602(16, 2)
 
