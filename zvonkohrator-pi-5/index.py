@@ -7,22 +7,7 @@ from serial import Serial
 # USB hub - cestovni
 ser = Serial("/dev/cu.usbmodem11101", 9600)
 
-
-# from LCD1602.LCD1602 import LCD1602
-class LCD1602:
-    def __init__(self, cols, rows):
-        self.cols = cols
-        self.rows = rows
-
-    def clear(self):
-        pass
-
-    def setCursor(self, col, row):
-        pass
-
-    def printout(self, string):
-        print(string)
-
+from LCD1602.LCD1602Mock import LCD1602
 
 # _X __ __ channel
 # 9_ __ __ note on
