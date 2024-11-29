@@ -1,5 +1,8 @@
 import time
 import rtmidi
+from serial import Serial
+
+ser = Serial("/dev/cu.usbmodem1201", 9600)
 
 
 # from LCD1602 import LCD1602
@@ -149,6 +152,9 @@ def note_on(note, velocity):
     lcd.printout("...a necum!!")
     print(
         f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}\tgpio={playable_gpio}")
+    ser.write(f"{playable_tone}\r".encode())
+    response = ser.readline().strip()
+    print(response)
 
 
 def note_off(note, velocity):
@@ -156,6 +162,9 @@ def note_off(note, velocity):
     (playable_name, playable_gpio) = playable_tones[playable_tone]
     print(
         f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}\tgpio={playable_gpio}")
+    ser.write(f"{playable_tone}\r".encode())
+    response = ser.readline().strip()
+    print(response)
 
 
 def handle_command(cmd, note, velocity):
