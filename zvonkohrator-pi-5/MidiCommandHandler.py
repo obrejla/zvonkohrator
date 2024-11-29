@@ -1,3 +1,5 @@
+from MidiPlayer import MidiPlayer
+
 # _X __ __ channel
 # 9_ __ __ note on
 # 8_ __ __ note off
@@ -66,33 +68,33 @@ NOTE_OFF_BYTE = "8"
 
 class MidiCommandHandler:
 
-    def __init__(self, midi_player, lcd):
+    def __init__(self, midi_player: MidiPlayer, lcd):
         self.midi_player = midi_player
         self.lcd = lcd
 
     @staticmethod
-    def find_lowest_similar(note):
+    def find_lowest_similar(note: int):
         lowest_similar_note = note
         while lowest_similar_note < C2:
             lowest_similar_note += OCTAVE
         return lowest_similar_note
 
     @staticmethod
-    def find_highest_similar(note):
+    def find_highest_similar(note: int):
         highest_similar_note = note
         while highest_similar_note > C4:
             highest_similar_note -= OCTAVE
         return highest_similar_note
 
     @staticmethod
-    def find_playable_tone(note):
+    def find_playable_tone(note: int):
         if note < C2:
             return MidiCommandHandler.find_lowest_similar(note)
         elif note > C4:
             return MidiCommandHandler.find_highest_similar(note)
         return note
 
-    def note_on(self, note, velocity):
+    def note_on(self, note: int, velocity: int):
         playable_tone = MidiCommandHandler.find_playable_tone(note)
         playable_name = PLAYABLE_TONES[playable_tone]
         self.lcd.clear()
@@ -111,7 +113,7 @@ class MidiCommandHandler:
             f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
         self.midi_player.on_note_off(playable_tone)
 
-    def handle_command(self, cmd, note, velocity):
+    def handle_command(self, cmd: str, note: int, velocity: int):
         if cmd == NOTE_ON_BYTE:
             self.note_on(note, velocity)
         elif cmd == NOTE_OFF_BYTE:

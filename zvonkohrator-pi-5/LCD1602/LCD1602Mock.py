@@ -1,4 +1,4 @@
-class LCD1602:
+class LCD1602Mock:
     def __init__(self, cols, rows):
         self.cols = cols
         self.rows = rows

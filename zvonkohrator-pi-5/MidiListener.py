@@ -1,9 +1,10 @@
 import rtmidi
 import time
+from MidiCommandHandler import MidiCommandHandler
 
 
 class MidiListener:
-    def __init__(self, command_handler):
+    def __init__(self, command_handler: MidiCommandHandler):
         self.midi = MidiListener.connect_midi_device()
         self.command_handler = command_handler
 
