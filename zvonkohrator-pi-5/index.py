@@ -6,7 +6,9 @@ from MidiPlayer import MidiPlayer
 # USB hub - domaci
 # usb_port = "/dev/cu.usbmodem1201"
 # USB hub - cestovni
-usb_port = "/dev/cu.usbmodem11101"
+# usb_port = "/dev/cu.usbmodem11101"
+# USB - raspberry
+usb_port = "/dev/ttyACM0"
 midi_player = MidiPlayer(usb_port)
 lcd = LCD1602Mock(16, 2)
 
