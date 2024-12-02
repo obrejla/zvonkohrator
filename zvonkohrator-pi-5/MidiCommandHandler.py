@@ -1,4 +1,5 @@
 from MidiPlayer import MidiPlayer
+from threading import Timer
 
 # _X __ __ channel
 # 9_ __ __ note on
@@ -65,6 +66,9 @@ PLAYABLE_TONES = {
 NOTE_ON_BYTE = "9"
 NOTE_OFF_BYTE = "8"
 
+# holy grail so the "cink" is the best
+DEFAULT_NOTE_OFF_DELAY = 0.05
+
 
 class MidiCommandHandler:
 
@@ -94,17 +98,23 @@ class MidiCommandHandler:
             return MidiCommandHandler.find_highest_similar(note)
         return note
 
+    def seng_auto_note_off_after_delay(self, note: int, delay=DEFAULT_NOTE_OFF_DELAY):
+        Timer(delay, self.note_off, (note, 0)).start()
+
     def note_on(self, note: int, velocity: int):
-        playable_tone = MidiCommandHandler.find_playable_tone(note)
-        playable_name = PLAYABLE_TONES[playable_tone]
-        self.lcd.clear()
-        self.lcd.setCursor(6, 0)
-        self.lcd.printout(f"{playable_name}!")
-        self.lcd.setCursor(2, 1)
-        self.lcd.printout("...a necum!!")
-        print(
-            f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
-        self.midi_player.on_note_on(playable_tone)
+        # note_on with velocity 0 means "note off"
+        if velocity > 0:
+            playable_tone = MidiCommandHandler.find_playable_tone(note)
+            playable_name = PLAYABLE_TONES[playable_tone]
+            self.lcd.clear()
+            self.lcd.setCursor(6, 0)
+            self.lcd.printout(f"{playable_name}!")
+            self.lcd.setCursor(2, 1)
+            self.lcd.printout("...a necum!!")
+            print(
+                f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
+            self.midi_player.on_note_on(playable_tone)
+            self.seng_auto_note_off_after_delay(note)
 
     def note_off(self, note, velocity):
         playable_tone = MidiCommandHandler.find_playable_tone(note)
@@ -116,8 +126,6 @@ class MidiCommandHandler:
     def handle_command(self, cmd: str, note: int, velocity: int):
         if cmd == NOTE_ON_BYTE:
             self.note_on(note, velocity)
-        elif cmd == NOTE_OFF_BYTE:
-            self.note_off(note, velocity)
 
     def clear(self):
         self.lcd.clear()
