@@ -6,3 +6,4 @@ importlib-metadata~=4.13.0
 importlib-resources~=5.13.0
 colorzero~=2.0
 gpiozero~=2.0.1
+smbus~=1.1.post2
