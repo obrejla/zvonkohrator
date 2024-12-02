@@ -16,6 +16,8 @@ class MidiListener:
 
         print(f"Ports: {ports_dict}")
 
+        # virtual midi keyboard on raspberry
+        # midi_in.open_port(ports_dict["VMPK Output:out 128:0"])
         midi_in.open_port(ports_dict["VMPK Output"])
 
         print(f"Is port open: {midi_in.is_port_open()}")
