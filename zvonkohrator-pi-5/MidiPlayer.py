@@ -3,7 +3,7 @@ from serial import Serial
 
 class MidiPlayer:
     def __init__(self, usb_port: str):
-        self.serial = Serial(usb_port, 9600)
+        self.serial = Serial(usb_port, 115200)
 
     def on_note_on(self, playable_tone: int):
         self.serial.write(f"{playable_tone}\r".encode())
