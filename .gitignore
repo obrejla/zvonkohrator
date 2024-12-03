@@ -1,5 +1,6 @@
 # created by virtualenv automatically
 
+.DS_store
 .idea
 *.iml
 /venv/
