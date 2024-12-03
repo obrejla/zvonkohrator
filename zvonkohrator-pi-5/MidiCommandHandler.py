@@ -99,7 +99,7 @@ class MidiCommandHandler:
             return MidiCommandHandler.find_highest_similar(note)
         return note
 
-    def seng_auto_note_off_after_delay(self, note: int, delay=DEFAULT_NOTE_OFF_DELAY):
+    def send_auto_note_off_after_delay(self, note: int, delay=DEFAULT_NOTE_OFF_DELAY):
         Timer(delay, self.note_off, (note, 0)).start()
 
     def note_on(self, note: int, velocity: int):
@@ -115,7 +115,7 @@ class MidiCommandHandler:
             print(
                 f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
             self.midi_player.on_note_on(playable_tone)
-            self.seng_auto_note_off_after_delay(note)
+            self.send_auto_note_off_after_delay(note)
 
     def note_off(self, note, velocity):
         playable_tone = MidiCommandHandler.find_playable_tone(note)
