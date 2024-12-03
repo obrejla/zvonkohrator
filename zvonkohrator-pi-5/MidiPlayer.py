@@ -7,10 +7,10 @@ class MidiPlayer:
 
     def on_note_on(self, playable_tone: int):
         self.serial.write(f"{playable_tone}\r".encode())
-        response = self.serial.readline().strip()
-        print(response)
+        # response = self.serial.readline().strip()
+        # print(response)
 
     def on_note_off(self, playable_tone: int):
         self.serial.write(f"{playable_tone * -1}\r".encode())
-        response = self.serial.readline().strip()
-        print(response)
+        # response = self.serial.readline().strip()
+        # print(response)
