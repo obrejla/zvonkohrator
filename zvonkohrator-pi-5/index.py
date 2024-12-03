@@ -1,4 +1,4 @@
-from LCD1602.LCD1602Mock import LCD1602Mock
+from LCD import LCD
 from MidiListener import MidiListener
 from MidiCommandHandler import MidiCommandHandler
 from MidiPlayer import MidiPlayer
@@ -10,7 +10,7 @@ from MidiPlayer import MidiPlayer
 # USB - raspberry
 usb_port = "/dev/ttyACM0"
 midi_player = MidiPlayer(usb_port)
-lcd = LCD1602Mock(16, 2)
+lcd = LCD()
 
 midi_command_handler = MidiCommandHandler(midi_player, lcd)
 midi_listener = MidiListener(midi_command_handler)

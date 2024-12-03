@@ -1,5 +1,6 @@
 from MidiPlayer import MidiPlayer
 from threading import Timer
+from LCD import LCD
 
 # _X __ __ channel
 # 9_ __ __ note on
@@ -72,7 +73,7 @@ DEFAULT_NOTE_OFF_DELAY = 0.05
 
 class MidiCommandHandler:
 
-    def __init__(self, midi_player: MidiPlayer, lcd):
+    def __init__(self, midi_player: MidiPlayer, lcd: LCD):
         self.midi_player = midi_player
         self.lcd = lcd
 
@@ -107,9 +108,9 @@ class MidiCommandHandler:
             playable_tone = MidiCommandHandler.find_playable_tone(note)
             playable_name = PLAYABLE_TONES[playable_tone]
             self.lcd.clear()
-            self.lcd.setCursor(6, 0)
+            self.lcd.set_cursor(6, 0)
             self.lcd.printout(f"{playable_name}!")
-            self.lcd.setCursor(2, 1)
+            self.lcd.set_cursor(2, 1)
             self.lcd.printout("...a necum!!")
             print(
                 f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
