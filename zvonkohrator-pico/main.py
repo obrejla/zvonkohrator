@@ -1,5 +1,3 @@
-from symbol import not_test
-
 from machine import Pin, Timer
 import select
 import sys
