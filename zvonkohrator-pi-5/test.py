@@ -5,6 +5,7 @@ from MidiCommandHandler import MidiCommandHandler
 from MidiPlayer import MidiPlayer
 from LCD import LCD
 import time
+import os
 
 usb_port = "/dev/ttyACM0"
 midi_player = MidiPlayer(usb_port)
@@ -17,8 +18,11 @@ stop_button = Button(19)
 play_pause_button = Button(13)
 next_button = Button(6)
 
-midi_file = MidiFile("/home/david/Projects/zvonkohrator/zvonkohrator-pi-5/midi-files/kdyz-se-ten-talinskej-rybnik.mid")
+midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
 is_playing = False
+
+def extract_file_name(file_path: str):
+    return file_path.split("/")[-1][0:16]
 
 def play_midi_file():
     global is_playing
@@ -27,21 +31,35 @@ def play_midi_file():
         is_playing = False
     else:
         print(f"Playing midi file {midi_file.filename}...")
+        lcd.clear()
+        lcd.set_cursor(2, 0)
+        lcd.printout("Prehravam...")
+        lcd.set_cursor(0, 1)
+        lcd.printout(extract_file_name(midi_file.filename))
         is_playing = True
         for msg in midi_file:
             if not msg.is_meta:
                 time.sleep(msg.time)
-                if msg.type == "note_on" and msg.channel == 1:
+                if msg.type == "note_on":
                     print(msg)
                     midi_command_handler.note_on(msg.note, msg.velocity)
         print(f"END OF CHANNEL!!! file length={midi_file.length}")
+        lcd.clear()
+        lcd.set_cursor(5, 0)
+        lcd.printout("Konec.")
+        lcd.set_cursor(0, 1)
+        lcd.printout(extract_file_name(midi_file.filename))
 
+lcd.clear()
 prev_button.when_pressed = lambda : print("PREV button pressed")
 stop_button.when_pressed = lambda : print("STOP button pressed")
 play_pause_button.when_pressed = play_midi_file
 next_button.when_pressed = lambda : print("NEXT button pressed")
 
-pause()
+try:
+    pause()
+except KeyboardInterrupt:
+    lcd.clear()
 
 
 # Exception in thread Thread-1:
