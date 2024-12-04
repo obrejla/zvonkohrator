@@ -13,8 +13,7 @@ class LCD:
         return self.lcd_impl
 
     def clear(self):
-        if self.lcd_impl is not None:
-            self.lcd_impl.clear()
+        self.__get_lcd_impl().clear()
 
     def set_cursor(self, col: int, row: int):
         self.__get_lcd_impl().setCursor(col, row)
