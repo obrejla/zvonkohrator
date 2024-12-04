@@ -107,11 +107,6 @@ class MidiCommandHandler:
         if velocity > 0:
             playable_tone = MidiCommandHandler.find_playable_tone(note)
             playable_name = PLAYABLE_TONES[playable_tone]
-            self.lcd.clear()
-            self.lcd.set_cursor(6, 0)
-            self.lcd.printout(f"{playable_name}!")
-            self.lcd.set_cursor(2, 1)
-            self.lcd.printout("...a necum!!")
             print(
                 f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
             self.midi_player.on_note_on(playable_tone)
