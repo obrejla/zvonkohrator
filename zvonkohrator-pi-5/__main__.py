@@ -4,8 +4,16 @@ from signal import pause
 from MidiPlayer import MidiPlayer
 from PlayFileModeThread import PlayFileModeThread
 from PlayKeyboardModeThread import PlayKeyboardModeThread
+from LCD import LCD
 
-def main():
+def show_init_message(lcd: LCD):
+    lcd.clear()
+    lcd.set_cursor(2, 0)
+    lcd.printout("VYBER HERNI")
+    lcd.set_cursor(5, 1)
+    lcd.printout("MOD...")
+
+def main(lcd: LCD):
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
 
@@ -21,10 +29,17 @@ def main():
     usb_port = "/dev/ttyACM0"
     midi_player = MidiPlayer(usb_port)
 
-    play_file_mode_button.when_pressed = lambda : PlayFileModeThread(lock, should_stop_file_mode, should_stop_keyboard_mode).start()
-    play_keyboard_mode_button.when_pressed = lambda : PlayKeyboardModeThread(lock, should_stop_file_mode, should_stop_keyboard_mode, midi_player).start()
+    play_file_mode_button.when_pressed = lambda : PlayFileModeThread(lock, should_stop_file_mode, should_stop_keyboard_mode, lcd).start()
+    play_keyboard_mode_button.when_pressed = lambda : PlayKeyboardModeThread(lock, should_stop_file_mode, should_stop_keyboard_mode, midi_player, lcd).start()
+
+    show_init_message(lcd)
 
     pause()
 
 if __name__ == "__main__":
-    main()
+    lcd = LCD()
+
+    try:
+        main(lcd)
+    except KeyboardInterrupt:
+        lcd.clear()
