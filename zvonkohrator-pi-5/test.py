@@ -4,6 +4,7 @@ from mido import MidiFile
 from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
 from MidiPlayer import MidiPlayer
 from LCD import LCD
+from threading import Event
 import time
 
 usb_port = "/dev/ttyACM0"
@@ -18,25 +19,27 @@ play_pause_button = Button(13)
 next_button = Button(6)
 
 midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
-is_playing = False
-is_paused = False
+is_playing = Event()
+is_paused = Event()
 
 def extract_file_name(file_path: str):
     return file_path.split("/")[-1][0:16]
 
 def play_midi_file():
     global is_playing
-    if is_playing:
+    if is_playing.is_set():
+        is_playing.clear()
+        is_paused.set()
         print("...pausing file {midi_file.filename}")
-        is_playing = False
     else:
+        is_playing.set()
+        is_paused.clear()
         print(f"Playing midi file {midi_file.filename}...")
         lcd.clear()
         lcd.set_cursor(2, 0)
         lcd.printout("Prehravam...")
         lcd.set_cursor(0, 1)
         lcd.printout(extract_file_name(midi_file.filename))
-        is_playing = True
         for msg in midi_file:
             if not msg.is_meta:
                 time.sleep(msg.time)
@@ -52,7 +55,7 @@ def play_midi_file():
 
 def prev_pressed():
     print("PREV button pressed")
-    if is_playing or is_paused:
+    if is_playing.is_set() or is_paused.is_set():
         # notify playing thread to stop
         # reset current playing position to start
         # start playing of the current song
@@ -64,12 +67,12 @@ def prev_pressed():
 def play_pause_pressed():
     print("PLAY/PAUSE button pressed")
     play_midi_file()
-    if is_playing:
+    if is_playing.is_set():
         # notify playing thread to pause - remember current position
         # is_playing = False
         # is_paused = True
         pass
-    elif is_paused:
+    elif is_paused.is_set():
         # notify playing thread to play from remembered position
         # is_playing = True
         # is_paused = False
@@ -80,7 +83,7 @@ def play_pause_pressed():
 
 def stop_pressed():
     print("STOP button pressed")
-    if is_playing or is_paused:
+    if is_playing.is_set() or is_paused.is_set():
         # notify playing thread to stop
         # reset current playing position to start
         # is_playing = False
@@ -89,7 +92,7 @@ def stop_pressed():
 
 def next_pressed():
     print("NEXT button pressed")
-    if is_playing or is_paused:
+    if is_playing.is_set() or is_paused.is_set():
         # notify playing thread to stop
         # reset current playing position to start
         pass
