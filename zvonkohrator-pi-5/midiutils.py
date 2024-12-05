@@ -2,6 +2,9 @@ from mido import MidiFile
 from MidiNoteOnHandler import MidiNoteOnHandler
 import time
 
+def extract_file_name(file_path: str):
+    return file_path.split("/")[-1][0:16]
+
 def extract_note_on_messages_in_absolute_time(midi_file: MidiFile):
     note_on_messages_in_absolute_time = {}
     current_time = 0
@@ -28,8 +31,7 @@ def play_from_time_position(midi_file: MidiFile, midi_note_on_handler: MidiNoteO
         current_time = absolute_times[current_time_position]
         for msg in extracted_messages[current_time]:
             time.sleep(msg.time)
-            print(msg)
-            midi_note_on_handler.handle(msg.note, msg.velocity)
+            midi_note_on_handler.handle_note_on(msg.note, msg.velocity)
 
 if __name__ == "__main__":
     midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
