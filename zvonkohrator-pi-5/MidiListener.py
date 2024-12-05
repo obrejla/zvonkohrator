@@ -26,7 +26,7 @@ class MidiListener:
         print("Listening...")
         return midi_in
 
-    def read_command(self):
+    def __read_command(self):
         msg_and_dt = self.midi.get_message()
         if msg_and_dt:
             (msg, dt) = msg_and_dt  # dt - delay time is seconds
@@ -36,4 +36,4 @@ class MidiListener:
 
     def listen(self, should_stop: Event):
         while True and not should_stop.is_set():
-            self.read_command()
+            self.__read_command()
