@@ -5,7 +5,6 @@ from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
 from MidiPlayer import MidiPlayer
 from LCD import LCD
 import time
-import os
 
 usb_port = "/dev/ttyACM0"
 midi_player = MidiPlayer(usb_port)
