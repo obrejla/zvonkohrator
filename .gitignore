@@ -3,6 +3,7 @@
 .DS_store
 .idea
 .vscode
+.lgd-nfy0
 *.iml
 __pycache__
 /venv/
