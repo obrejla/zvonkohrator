@@ -75,7 +75,7 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
         self.midi_player = midi_player
 
     def handles(self, cmd: str):
-        return cmd == NOTE_ON_BYTE
+        return cmd[2:3] == NOTE_ON_BYTE
 
     def handle(self, msg, dt):
         self.handle_note_on(msg[1], msg[2])
