@@ -1,17 +1,19 @@
 from threading import Event, Lock, Thread
-from time import sleep
 from LCD import LCD
+from PlayFileModeController import PlayFileModeController
+from MidiNoteOnHandler import MidiNoteOnHandler
 
 class PlayFileModeThread(Thread):
 
     internal_lock = Lock()
 
-    def __init__(self, lock: Lock, should_stop_file_mode: Event, should_stop_keyboard_mode: Event, lcd: LCD):
+    def __init__(self, lock: Lock, should_stop_file_mode: Event, should_stop_keyboard_mode: Event, lcd: LCD, midi_note_on_handler: MidiNoteOnHandler):
         super().__init__(daemon=True)
         self.lock = lock
         self.should_stop_file_mode = should_stop_file_mode
         self.should_stop_keyboard_mode = should_stop_keyboard_mode
         self.lcd = lcd
+        self.midi_note_on_handler = midi_note_on_handler
 
     def __show_init_message(self):
         self.lcd.clear()
@@ -22,10 +24,8 @@ class PlayFileModeThread(Thread):
 
     def __run_file_mode(self):
         self.__show_init_message()
-        # dummy loop
-        while True and not self.should_stop_file_mode.is_set():
-            print("Running in 'play file mode'...")
-            sleep(1)
+        play_file_mode_controller = PlayFileModeController(self.lcd, self.midi_note_on_handler)
+        play_file_mode_controller.run(self.should_stop_file_mode)
 
     def run(self):
         print("wanna play file...")

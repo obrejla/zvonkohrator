@@ -4,6 +4,7 @@ from signal import pause
 from MidiPlayer import MidiPlayer
 from PlayFileModeThread import PlayFileModeThread
 from PlayKeyboardModeThread import PlayKeyboardModeThread
+from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
 from LCD import LCD
 
 def show_init_message(lcd: LCD):
@@ -28,9 +29,10 @@ def main(lcd: LCD):
     # USB - raspberry
     usb_port = "/dev/ttyACM0"
     midi_player = MidiPlayer(usb_port)
+    midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
-    play_file_mode_button.when_pressed = lambda : PlayFileModeThread(lock, should_stop_file_mode, should_stop_keyboard_mode, lcd).start()
-    play_keyboard_mode_button.when_pressed = lambda : PlayKeyboardModeThread(lock, should_stop_file_mode, should_stop_keyboard_mode, midi_player, lcd).start()
+    play_file_mode_button.when_pressed = lambda : PlayFileModeThread(lock, should_stop_file_mode, should_stop_keyboard_mode, lcd, midi_note_on_handler).start()
+    play_keyboard_mode_button.when_pressed = lambda : PlayKeyboardModeThread(lock, should_stop_file_mode, should_stop_keyboard_mode, midi_note_on_handler, lcd).start()
 
     show_init_message(lcd)
 
