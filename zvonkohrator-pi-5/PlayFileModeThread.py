@@ -11,6 +11,12 @@ class PlayFileModeThread(Thread):
         self.should_stop_file_mode = should_stop_file_mode
         self.should_stop_keyboard_mode = should_stop_keyboard_mode
 
+    def __run_file_mode(self):
+        # dummy loop
+        while True and not self.should_stop_file_mode.is_set():
+            print("Running in 'play file mode'...")
+            sleep(1)
+
     def run(self):
         print("wanna play file...")
         if not PlayFileModeThread.internal_lock.locked():
@@ -19,10 +25,7 @@ class PlayFileModeThread(Thread):
             with self.lock:
                 print("Lock acquired! Starting 'play file mode'...")
                 self.should_stop_keyboard_mode.clear()
-                # dummy loop
-                while True and not self.should_stop_file_mode.is_set():
-                    print("Running in 'play file mode'...")
-                    sleep(1)
+                self.__run_file_mode()
                 self.should_stop_file_mode.clear()
                 print("...ending 'play file mode'. Releasing lock.")
             PlayFileModeThread.internal_lock.release()
