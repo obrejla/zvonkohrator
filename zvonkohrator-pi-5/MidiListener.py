@@ -1,12 +1,12 @@
 import rtmidi
 import time
-from MidiCommandHandler import MidiCommandHandler
+from MidiCommandHandlers import MidiCommandHandlers
 
 
 class MidiListener:
-    def __init__(self, command_handler: MidiCommandHandler):
+    def __init__(self, command_handlers: MidiCommandHandlers):
         self.midi = MidiListener.connect_midi_device()
-        self.command_handler = command_handler
+        self.command_handlers = command_handlers
 
     @staticmethod
     def connect_midi_device():
@@ -29,15 +29,10 @@ class MidiListener:
         msg_and_dt = self.midi.get_message()
         if msg_and_dt:
             (msg, dt) = msg_and_dt  # dt - delay time is seconds
-
-            command = hex(msg[0])
-            self.command_handler.handle_command(command[2:3], msg[1], msg[2])
+            self.command_handlers.handle(msg, dt)
         else:
             time.sleep(0.001)
 
     def listen(self):
-        try:
-            while True:
-                self.read_command()
-        except KeyboardInterrupt:
-            self.command_handler.clear()
+        while True:
+            self.read_command()

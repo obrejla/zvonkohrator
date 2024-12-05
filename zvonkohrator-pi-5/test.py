@@ -1,7 +1,7 @@
 from gpiozero import Button
 from signal import pause
 from mido import MidiFile
-from MidiCommandHandler import MidiCommandHandler
+from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
 from MidiPlayer import MidiPlayer
 from LCD import LCD
 import time
@@ -11,7 +11,7 @@ usb_port = "/dev/ttyACM0"
 midi_player = MidiPlayer(usb_port)
 lcd = LCD()
 
-midi_command_handler = MidiCommandHandler(midi_player, lcd)
+midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
 prev_button = Button(26)
 stop_button = Button(19)
@@ -43,7 +43,7 @@ def play_midi_file():
                 time.sleep(msg.time)
                 if msg.type == "note_on":
                     print(msg)
-                    midi_command_handler.note_on(msg.note, msg.velocity)
+                    midi_note_on_handler.handle_note_on(msg.note, msg.velocity)
         print(f"END OF CHANNEL!!! file length={midi_file.length}")
         lcd.clear()
         lcd.set_cursor(5, 0)

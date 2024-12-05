@@ -1,6 +1,6 @@
-from LCD import LCD
 from MidiListener import MidiListener
-from MidiCommandHandler import MidiCommandHandler
+from MidiCommandHandlers import MidiCommandHandlers
+from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
 from MidiPlayer import MidiPlayer
 
 # USB hub - domaci
@@ -10,8 +10,9 @@ from MidiPlayer import MidiPlayer
 # USB - raspberry
 usb_port = "/dev/ttyACM0"
 midi_player = MidiPlayer(usb_port)
-lcd = LCD()
 
-midi_command_handler = MidiCommandHandler(midi_player, lcd)
-midi_listener = MidiListener(midi_command_handler)
+midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
+midi_command_handlers = MidiCommandHandlers()
+midi_command_handlers.register(midi_note_on_handler)
+midi_listener = MidiListener(midi_command_handlers)
 midi_listener.listen()
