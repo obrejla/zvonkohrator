@@ -1,6 +1,7 @@
 import rtmidi
 import time
 from MidiCommandHandlers import MidiCommandHandlers
+from threading import Event
 
 
 class MidiListener:
@@ -33,6 +34,6 @@ class MidiListener:
         else:
             time.sleep(0.001)
 
-    def listen(self):
-        while True:
+    def listen(self, should_stop: Event):
+        while True and not should_stop.is_set():
             self.read_command()
