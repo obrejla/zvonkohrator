@@ -20,6 +20,7 @@ next_button = Button(6)
 
 midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
 is_playing = False
+is_paused = False
 
 def extract_file_name(file_path: str):
     return file_path.split("/")[-1][0:16]
@@ -50,11 +51,57 @@ def play_midi_file():
         lcd.set_cursor(0, 1)
         lcd.printout(extract_file_name(midi_file.filename))
 
+def prev_pressed():
+    print("PREV button pressed")
+    if is_playing or is_paused:
+        # notify playing thread to stop
+        # reset current playing position to start
+        # start playing of the current song
+        pass
+    else:
+        # select prev song from the list
+        pass
+
+def play_pause_pressed():
+    print("PLAY/PAUSE button pressed")
+    play_midi_file()
+    if is_playing:
+        # notify playing thread to pause - remember current position
+        # is_playing = False
+        # is_paused = True
+        pass
+    elif is_paused:
+        # notify playing thread to play from remembered position
+        # is_playing = True
+        # is_paused = False
+        pass
+    else:
+        # start playing current song
+        pass
+
+def stop_pressed():
+    print("STOP button pressed")
+    if is_playing or is_paused:
+        # notify playing thread to stop
+        # reset current playing position to start
+        # is_playing = False
+        # is_paused = False
+        pass
+
+def next_pressed():
+    print("NEXT button pressed")
+    if is_playing or is_paused:
+        # notify playing thread to stop
+        # reset current playing position to start
+        pass
+    # select next song from list
+    # IF IT WAS NOT PAUSED - trigger Play for the song
+
 lcd.clear()
-prev_button.when_pressed = lambda : print("PREV button pressed")
-stop_button.when_pressed = lambda : print("STOP button pressed")
-play_pause_button.when_pressed = play_midi_file
-next_button.when_pressed = lambda : print("NEXT button pressed")
+prev_button.when_pressed = prev_pressed
+stop_button.when_pressed = stop_pressed
+play_pause_button.when_pressed = play_pause_pressed
+next_button.when_pressed = next_pressed
 
 try:
     pause()
