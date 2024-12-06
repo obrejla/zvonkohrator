@@ -10,14 +10,14 @@ class PlayFileModeThread(Thread):
 
     def __init__(
         self,
-        lock: Lock,
+        general_mode_lock: Lock,
         should_stop_file_mode: Event,
         should_stop_keyboard_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
     ):
         super().__init__(daemon=True)
-        self.lock = lock
+        self.general_mode_lock = general_mode_lock
         self.should_stop_file_mode = should_stop_file_mode
         self.should_stop_keyboard_mode = should_stop_keyboard_mode
         self.lcd = lcd
@@ -42,7 +42,7 @@ class PlayFileModeThread(Thread):
         if not PlayFileModeThread.internal_lock.locked():
             PlayFileModeThread.internal_lock.acquire()
             self.should_stop_keyboard_mode.set()
-            with self.lock:
+            with self.general_mode_lock:
                 print("Lock acquired! Starting 'play file mode'...")
                 self.should_stop_keyboard_mode.clear()
                 self.__run_file_mode()

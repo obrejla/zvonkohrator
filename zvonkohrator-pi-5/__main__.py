@@ -21,7 +21,7 @@ def main(lcd: LCD):
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
 
-    lock = Lock()
+    general_mode_lock = Lock()
     should_stop_file_mode = Event()
     should_stop_keyboard_mode = Event()
 
@@ -35,14 +35,14 @@ def main(lcd: LCD):
     midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
     play_file_mode_button.when_pressed = lambda: PlayFileModeThread(
-        lock,
+        general_mode_lock,
         should_stop_file_mode,
         should_stop_keyboard_mode,
         lcd,
         midi_note_on_handler,
     ).start()
     play_keyboard_mode_button.when_pressed = lambda: PlayKeyboardModeThread(
-        lock,
+        general_mode_lock,
         should_stop_file_mode,
         should_stop_keyboard_mode,
         midi_note_on_handler,
