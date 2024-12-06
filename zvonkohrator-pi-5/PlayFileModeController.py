@@ -7,6 +7,7 @@ from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
 from midiutils import extract_file_name, play_from_time_position
 from mido import MidiFile
+from utils import non_blocking_lock
 
 
 class PlayFileModeController:
@@ -45,23 +46,25 @@ class PlayFileModeController:
 
     def __handle_prev(self):
         print("Wanna go to prev song...")
-        if not self.prev_next_lock.locked() and not self.is_playing.is_set():
-            self.prev_next_lock.acquire()
-            try:
-                if not self.is_playing.is_set():
-                    self.current_file_index = (
-                        self.current_file_index - 1
-                        if self.current_file_index > 0
-                        else len(self.file_paths) - 1
-                    )
-                    print(f"current_file={self.__current_file_path()}")
-                    self.__show_current_file_name()
+        if not self.is_playing.is_set():
+            with non_blocking_lock(self.prev_next_lock) as locked:
+                if locked:
+                    if not self.is_playing.is_set():
+                        self.current_file_index = (
+                            self.current_file_index - 1
+                            if self.current_file_index > 0
+                            else len(self.file_paths) - 1
+                        )
+                        print(f"current_file={self.__current_file_path()}")
+                        self.__show_current_file_name()
+                        # sleep for a while so the processing takes a bit more time so the potential another "trigger" of button pressed event does not pass
+                        sleep(0.3)
+                    else:
+                        print("...playig started in the meantime of going to PREV :/")
                 else:
-                    print("...playig started in the meantime of going to PREV :/")
-            finally:
-                self.prev_next_lock.release()
+                    print("...lock for go NEXT was not acquired.")
         else:
-            print("...but already walking or playing (I'm in handle prev)")
+            print("...but already playing (I'm in handle prev)")
 
     def __handle_stop(self):
         pass
@@ -84,20 +87,22 @@ class PlayFileModeController:
 
     def __handle_next(self):
         print("Wanna go to next song...")
-        if not self.prev_next_lock.locked() and not self.is_playing.is_set():
-            self.prev_next_lock.acquire()
-            try:
-                if not self.is_playing.is_set():
-                    self.current_file_index += 1
-                    self.current_file_index %= len(self.file_paths)
-                    print(f"current_file={self.__current_file_path()}")
-                    self.__show_current_file_name()
+        if not self.is_playing.is_set():
+            with non_blocking_lock(self.prev_next_lock) as locked:
+                if locked:
+                    if not self.is_playing.is_set():
+                        self.current_file_index += 1
+                        self.current_file_index %= len(self.file_paths)
+                        print(f"current_file={self.__current_file_path()}")
+                        self.__show_current_file_name()
+                        # sleep for a while so the processing takes a bit more time so the potential another "trigger" of button pressed event does not pass
+                        sleep(0.3)
+                    else:
+                        print("...playig started in the meantime of going to NEXT :/")
                 else:
-                    print("...playig started in the meantime of going to NEXT :/")
-            finally:
-                self.prev_next_lock.release()
+                    print("...lock for go NEXT was not acquired.")
         else:
-            print("...but already walking or playing (I'm in handle next)")
+            print("...but already playing (I'm in handle next)")
 
     def run(self, should_stop: Event):
         self.midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
