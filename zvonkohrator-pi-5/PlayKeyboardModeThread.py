@@ -45,7 +45,7 @@ class PlayKeyboardModeThread(Thread):
             if locked:
                 self.should_stop_file_mode.set()
                 with self.general_mode_lock:
-                    print("Lock acquired! Starting 'play keyboard mode'...")
+                    print("General lock acquired! Starting 'play keyboard mode'...")
                     self.should_stop_file_mode.clear()
                     self.__run_keyboard_mode()
                     self.should_stop_keyboard_mode.clear()
