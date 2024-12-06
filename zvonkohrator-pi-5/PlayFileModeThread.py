@@ -3,6 +3,7 @@ from threading import Event, Lock, Thread
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
 from PlayFileModeController import PlayFileModeController
+from utils import non_blocking_lock
 
 
 class PlayFileModeThread(Thread):
@@ -39,15 +40,14 @@ class PlayFileModeThread(Thread):
 
     def run(self):
         print("wanna play file...")
-        if not PlayFileModeThread.internal_lock.locked():
-            PlayFileModeThread.internal_lock.acquire()
-            self.should_stop_keyboard_mode.set()
-            with self.general_mode_lock:
-                print("Lock acquired! Starting 'play file mode'...")
-                self.should_stop_keyboard_mode.clear()
-                self.__run_file_mode()
-                self.should_stop_file_mode.clear()
-                print("...ending 'play file mode'. Releasing lock.")
-            PlayFileModeThread.internal_lock.release()
-        else:
-            print("but is already playing file :/")
+        with non_blocking_lock(PlayFileModeThread.internal_lock) as locked:
+            if locked:
+                self.should_stop_keyboard_mode.set()
+                with self.general_mode_lock:
+                    print("Lock acquired! Starting 'play file mode'...")
+                    self.should_stop_keyboard_mode.clear()
+                    self.__run_file_mode()
+                    self.should_stop_file_mode.clear()
+                    print("...ending 'play file mode'. Releasing lock.")
+            else:
+                print("but is already playing file :/")
