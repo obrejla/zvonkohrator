@@ -1,7 +1,8 @@
-import rtmidi
 import time
-from MidiCommandHandlers import MidiCommandHandlers
 from threading import Event
+
+import rtmidi
+from MidiCommandHandlers import MidiCommandHandlers
 
 
 class MidiListener:

@@ -1,14 +1,14 @@
 from signal import pause
+from threading import Event, Thread
+
 from gpiozero import Button
 from LCD import LCD
-from threading import Event, Thread
-from mido import MidiFile
-from midiutils import extract_file_name
 from MidiNoteOnHandler import MidiNoteOnHandler
-from midiutils import play_from_time_position
+from midiutils import extract_file_name, play_from_time_position
+from mido import MidiFile
+
 
 class PlayFileModeController:
-
     def __init__(self, lcd: LCD, midi_note_on_handler: MidiNoteOnHandler):
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
@@ -55,10 +55,18 @@ class PlayFileModeController:
         self.midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
         # TODO: handle should_stop when another game mode is requested
         self.should_stop = should_stop
-        self.prev_button.when_pressed = lambda : Thread(target=self.__handle_prev, daemon=True).start()
-        self.stop_button.when_pressed = lambda : Thread(target=self.__handle_stop, daemon=True).start()
-        self.play_pause_button.when_pressed = lambda : Thread(target=self.__handle_play_pause, daemon=True).start()
-        self.next_button.when_pressed = lambda : Thread(target=self.__handle_next, daemon=True).start()
+        self.prev_button.when_pressed = lambda: Thread(
+            target=self.__handle_prev, daemon=True
+        ).start()
+        self.stop_button.when_pressed = lambda: Thread(
+            target=self.__handle_stop, daemon=True
+        ).start()
+        self.play_pause_button.when_pressed = lambda: Thread(
+            target=self.__handle_play_pause, daemon=True
+        ).start()
+        self.next_button.when_pressed = lambda: Thread(
+            target=self.__handle_next, daemon=True
+        ).start()
 
         self.__show_init_display()
 

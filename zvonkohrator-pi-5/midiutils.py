@@ -1,9 +1,12 @@
-from mido import MidiFile
-from MidiNoteOnHandler import MidiNoteOnHandler
 import time
+
+from MidiNoteOnHandler import MidiNoteOnHandler
+from mido import MidiFile
+
 
 def extract_file_name(file_path: str):
     return file_path.split("/")[-1][0:16]
+
 
 def extract_note_on_messages_in_absolute_time(midi_file: MidiFile):
     note_on_messages_in_absolute_time = {}
@@ -21,17 +24,25 @@ def extract_note_on_messages_in_absolute_time(midi_file: MidiFile):
                 prev_note_on_time = current_time
     return note_on_messages_in_absolute_time
 
-def play_from_time_position(midi_file: MidiFile, midi_note_on_handler: MidiNoteOnHandler, start_time_position: int = 0):
+
+def play_from_time_position(
+    midi_file: MidiFile,
+    midi_note_on_handler: MidiNoteOnHandler,
+    start_time_position: int = 0,
+):
     extracted_messages = extract_note_on_messages_in_absolute_time(midi_file)
     absolute_times = list(extracted_messages.keys())
     num_of_absolute_times = len(absolute_times)
     if start_time_position < 0 or start_time_position > num_of_absolute_times - 1:
-        raise ValueError(f"Position {start_time_position} is out of bounds! [0, {num_of_absolute_times - 1}]")
+        raise ValueError(
+            f"Position {start_time_position} is out of bounds! [0, {num_of_absolute_times - 1}]"
+        )
     for current_time_position in range(start_time_position, num_of_absolute_times):
         current_time = absolute_times[current_time_position]
         for msg in extracted_messages[current_time]:
             time.sleep(msg.time)
             midi_note_on_handler.handle_note_on(msg.note, msg.velocity)
+
 
 if __name__ == "__main__":
     midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")

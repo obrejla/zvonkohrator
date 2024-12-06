@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-class MidiCommandHandler(ABC):
 
+class MidiCommandHandler(ABC):
     @abstractmethod
     def handles(self, cmd: str):
         pass

@@ -1,6 +1,7 @@
-from machine import Pin, Timer
 import select
 import sys
+
+from machine import Pin
 
 C2 = Pin(0, Pin.OUT)
 Cis2 = Pin(1, Pin.OUT)

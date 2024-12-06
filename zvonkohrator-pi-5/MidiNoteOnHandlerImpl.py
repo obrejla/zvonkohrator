@@ -1,6 +1,7 @@
+from threading import Timer
+
 from MidiNoteOnHandler import MidiNoteOnHandler
 from MidiPlayer import MidiPlayer
-from threading import Timer
 
 # _X __ __ channel
 # 9_ __ __ note on
@@ -70,6 +71,7 @@ NOTE_OFF_BYTE = "8"
 # holy grail so the "cink" is the best
 DEFAULT_NOTE_OFF_DELAY = 0.05
 
+
 class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
     def __init__(self, midi_player: MidiPlayer):
         self.midi_player = midi_player
@@ -86,7 +88,8 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
             playable_tone = MidiNoteOnHandlerImpl.__find_playable_tone(note)
             playable_name = PLAYABLE_TONES[playable_tone]
             print(
-                f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
+                f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
+            )
             self.midi_player.on_note_on(playable_tone)
             self.__send_auto_note_off_after_delay(note)
 
@@ -119,5 +122,6 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
         playable_tone = MidiNoteOnHandlerImpl.__find_playable_tone(note)
         playable_name = PLAYABLE_TONES[playable_tone]
         print(
-            f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}")
+            f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
+        )
         self.midi_player.on_note_off(playable_tone)

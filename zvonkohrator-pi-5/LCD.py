@@ -1,4 +1,11 @@
-from LCD1602.LCD1602 import LCD1602, LCD_DISPLAYCONTROL, LCD_DISPLAYOFF, LCD_DISPLAYON, LCD_CURSOROFF, LCD_BLINKOFF
+from LCD1602.LCD1602 import (
+    LCD1602,
+    LCD_BLINKOFF,
+    LCD_CURSOROFF,
+    LCD_DISPLAYCONTROL,
+    LCD_DISPLAYOFF,
+    LCD_DISPLAYON,
+)
 
 
 class LCD:
@@ -22,7 +29,9 @@ class LCD:
         self.__get_lcd_impl().printout(text)
 
     def display_on(self):
-        self.__get_lcd_impl().command(LCD_DISPLAYCONTROL | LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF)
+        self.__get_lcd_impl().command(
+            LCD_DISPLAYCONTROL | LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF
+        )
         self.clear()
 
     def display_off(self):

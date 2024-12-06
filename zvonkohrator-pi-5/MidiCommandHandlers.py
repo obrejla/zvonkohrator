@@ -1,7 +1,7 @@
 from MidiCommandHandler import MidiCommandHandler
 
-class MidiCommandHandlers:
 
+class MidiCommandHandlers:
     def __init__(self):
         self.command_handlers: list[MidiCommandHandler] = []
 

@@ -1,14 +1,22 @@
 from threading import Event, Lock, Thread
-from MidiListener import MidiListener
-from MidiCommandHandlers import MidiCommandHandlers
-from MidiNoteOnHandler import MidiNoteOnHandler
+
 from LCD import LCD
+from MidiCommandHandlers import MidiCommandHandlers
+from MidiListener import MidiListener
+from MidiNoteOnHandler import MidiNoteOnHandler
+
 
 class PlayKeyboardModeThread(Thread):
-
     internal_lock = Lock()
 
-    def __init__(self, lock: Lock, should_stop_file_mode: Event, should_stop_keyboard_mode: Event, midi_note_on_handler: MidiNoteOnHandler, lcd: LCD):
+    def __init__(
+        self,
+        lock: Lock,
+        should_stop_file_mode: Event,
+        should_stop_keyboard_mode: Event,
+        midi_note_on_handler: MidiNoteOnHandler,
+        lcd: LCD,
+    ):
         super().__init__(daemon=True)
         self.lock = lock
         self.should_stop_file_mode = should_stop_file_mode
