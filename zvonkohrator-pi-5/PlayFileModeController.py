@@ -45,7 +45,7 @@ class PlayFileModeController:
 
     def __handle_prev(self):
         print("Wanna go to prev song...")
-        if not self.prev_next_lock.locked():
+        if not self.prev_next_lock.locked() and not self.is_playing.is_set():
             self.prev_next_lock.acquire()
             try:
                 if not self.is_playing.is_set():
@@ -56,10 +56,12 @@ class PlayFileModeController:
                     )
                     print(f"current_file={self.__current_file_path()}")
                     self.__show_current_file_name()
+                else:
+                    print("...playig started in the meantime of going to PREV :/")
             finally:
                 self.prev_next_lock.release()
         else:
-            print("...but already walking (I'm in handle prev)")
+            print("...but already walking or playing (I'm in handle prev)")
 
     def __handle_stop(self):
         pass
@@ -82,7 +84,7 @@ class PlayFileModeController:
 
     def __handle_next(self):
         print("Wanna go to next song...")
-        if not self.prev_next_lock.locked():
+        if not self.prev_next_lock.locked() and not self.is_playing.is_set():
             self.prev_next_lock.acquire()
             try:
                 if not self.is_playing.is_set():
@@ -90,10 +92,12 @@ class PlayFileModeController:
                     self.current_file_index %= len(self.file_paths)
                     print(f"current_file={self.__current_file_path()}")
                     self.__show_current_file_name()
+                else:
+                    print("...playig started in the meantime of going to NEXT :/")
             finally:
                 self.prev_next_lock.release()
         else:
-            print("...but already walking (I'm in handle next)")
+            print("...but already walking or playing (I'm in handle next)")
 
     def run(self, should_stop: Event):
         self.midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
