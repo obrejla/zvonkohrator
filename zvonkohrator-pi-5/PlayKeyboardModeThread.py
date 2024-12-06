@@ -4,6 +4,7 @@ from LCD import LCD
 from MidiCommandHandlers import MidiCommandHandlers
 from MidiListener import MidiListener
 from MidiNoteOnHandler import MidiNoteOnHandler
+from utils import non_blocking_lock
 
 
 class PlayKeyboardModeThread(Thread):
@@ -40,9 +41,8 @@ class PlayKeyboardModeThread(Thread):
 
     def run(self):
         print("wanna play keyboard...")
-        if not PlayKeyboardModeThread.internal_lock.locked():
-            PlayKeyboardModeThread.internal_lock.acquire()
-            try:
+        with non_blocking_lock(PlayKeyboardModeThread.internal_lock) as locked:
+            if locked:
                 self.should_stop_file_mode.set()
                 with self.lock:
                     print("Lock acquired! Starting 'play keyboard mode'...")
@@ -50,7 +50,5 @@ class PlayKeyboardModeThread(Thread):
                     self.__run_keyboard_mode()
                     self.should_stop_keyboard_mode.clear()
                     print("...ending 'play keyboard mode'. Releasing lock.")
-            finally:
-                PlayKeyboardModeThread.internal_lock.release()
-        else:
-            print("...but it is already playing keyboard :/")
+            else:
+                print("...but it is already playing keyboard :/")
