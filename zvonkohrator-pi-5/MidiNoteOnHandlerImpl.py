@@ -75,6 +75,7 @@ DEFAULT_NOTE_OFF_DELAY = 0.05
 class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
     def __init__(self, midi_player: MidiPlayer):
         self.midi_player = midi_player
+        self._debug = True
 
     def handles(self, cmd: str):
         return cmd[2:3] == NOTE_ON_BYTE
@@ -87,9 +88,10 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
         if velocity > 0:
             playable_tone = MidiNoteOnHandlerImpl.__find_playable_tone(note)
             playable_name = PLAYABLE_TONES[playable_tone]
-            print(
-                f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
-            )
+            if self._debug:
+                print(
+                    f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
+                )
             self.midi_player.on_note_on(playable_tone)
             self.__send_auto_note_off_after_delay(note)
 
@@ -121,7 +123,8 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
     def __note_off(self, note, velocity):
         playable_tone = MidiNoteOnHandlerImpl.__find_playable_tone(note)
         playable_name = PLAYABLE_TONES[playable_tone]
-        print(
-            f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
-        )
+        if self._debug:
+            print(
+                f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
+            )
         self.midi_player.on_note_off(playable_tone)
