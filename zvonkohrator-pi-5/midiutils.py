@@ -37,11 +37,13 @@ def play_from_time_position(
         raise ValueError(
             f"Position {start_time_position} is out of bounds! [0, {num_of_absolute_times - 1}]"
         )
+    print(f"Playing: {midi_file.filename}...")
     for current_time_position in range(start_time_position, num_of_absolute_times):
         current_time = absolute_times[current_time_position]
         for msg in extracted_messages[current_time]:
             time.sleep(msg.time)
             midi_note_on_handler.handle_note_on(msg.note, msg.velocity)
+    print(f"Stopped playing: {midi_file.filename}")
 
 
 if __name__ == "__main__":
