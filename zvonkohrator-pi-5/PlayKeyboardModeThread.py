@@ -42,13 +42,15 @@ class PlayKeyboardModeThread(Thread):
         print("wanna play keyboard...")
         if not PlayKeyboardModeThread.internal_lock.locked():
             PlayKeyboardModeThread.internal_lock.acquire()
-            self.should_stop_file_mode.set()
-            with self.lock:
-                print("Lock acquired! Starting 'play keyboard mode'...")
-                self.should_stop_file_mode.clear()
-                self.__run_keyboard_mode()
-                self.should_stop_keyboard_mode.clear()
-                print("...ending 'play keyboard mode'. Releasing lock.")
-            PlayKeyboardModeThread.internal_lock.release()
+            try:
+                self.should_stop_file_mode.set()
+                with self.lock:
+                    print("Lock acquired! Starting 'play keyboard mode'...")
+                    self.should_stop_file_mode.clear()
+                    self.__run_keyboard_mode()
+                    self.should_stop_keyboard_mode.clear()
+                    print("...ending 'play keyboard mode'. Releasing lock.")
+            finally:
+                PlayKeyboardModeThread.internal_lock.release()
         else:
             print("...but it is already playing keyboard :/")
