@@ -1,5 +1,6 @@
 from signal import pause
-from threading import Event, Thread
+from threading import Event, Lock, Thread
+from time import sleep
 
 from gpiozero import Button
 from LCD import LCD
@@ -18,6 +19,21 @@ class PlayFileModeController:
         self.next_button = Button(6)
         self.is_playing = Event()
         self.is_paused = Event()
+        self.prev_next_lock = Lock()
+        self.current_file_index = 0
+        self.file_paths = (
+            "./zvonkohrator-pi-5/midi-files/kocka-leze-dirou.mid",
+            "./zvonkohrator-pi-5/midi-files/prsi-prsi.mid",
+            "./zvonkohrator-pi-5/midi-files/skakal-pes.mid",
+        )
+
+    def __current_file_path(self):
+        return self.file_paths[self.current_file_index]
+
+    def __show_current_file_name(self):
+        self.lcd.set_cursor(0, 1)
+        self.lcd.printout(extract_file_name(self.__current_file_path()).ljust(16))
+        sleep(0.05)
 
     def __show_init_display(self):
         self.lcd.clear()
@@ -25,11 +41,25 @@ class PlayFileModeController:
         self.lcd.printout("STOPPED!")
         self.lcd.set_cursor(10, 0)
         self.lcd.printout("01/05")
-        self.lcd.set_cursor(0, 1)
-        self.lcd.printout(extract_file_name(self.midi_file.filename))
+        self.__show_current_file_name()
 
     def __handle_prev(self):
-        pass
+        print("Wanna go to prev song...")
+        if not self.prev_next_lock.locked():
+            self.prev_next_lock.acquire()
+            try:
+                if not self.is_playing.is_set():
+                    self.current_file_index = (
+                        self.current_file_index - 1
+                        if self.current_file_index > 0
+                        else len(self.file_paths) - 1
+                    )
+                    print(f"current_file={self.__current_file_path()}")
+                    self.__show_current_file_name()
+            finally:
+                self.prev_next_lock.release()
+        else:
+            print("...but already walking (I'm in handle prev)")
 
     def __handle_stop(self):
         pass
@@ -41,7 +71,9 @@ class PlayFileModeController:
         self.lcd.set_cursor(0, 0)
         self.lcd.printout("PLAYING!")
 
-        play_from_time_position(self.midi_file, self.midi_note_on_handler)
+        midi_file = MidiFile(self.__current_file_path())
+
+        play_from_time_position(midi_file, self.midi_note_on_handler)
 
         self.lcd.set_cursor(0, 0)
         self.lcd.printout("STOPPED!")
@@ -49,7 +81,19 @@ class PlayFileModeController:
         self.is_playing.clear()
 
     def __handle_next(self):
-        pass
+        print("Wanna go to next song...")
+        if not self.prev_next_lock.locked():
+            self.prev_next_lock.acquire()
+            try:
+                if not self.is_playing.is_set():
+                    self.current_file_index += 1
+                    self.current_file_index %= len(self.file_paths)
+                    print(f"current_file={self.__current_file_path()}")
+                    self.__show_current_file_name()
+            finally:
+                self.prev_next_lock.release()
+        else:
+            print("...but already walking (I'm in handle next)")
 
     def run(self, should_stop: Event):
         self.midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
