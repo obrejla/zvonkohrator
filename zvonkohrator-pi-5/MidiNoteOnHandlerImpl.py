@@ -75,7 +75,7 @@ DEFAULT_NOTE_OFF_DELAY = 0.05
 class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
     def __init__(self, midi_player: MidiPlayer):
         self.midi_player = midi_player
-        self._debug = True
+        self._debug = False
 
     def handles(self, cmd: str):
         return cmd[2:3] == NOTE_ON_BYTE
