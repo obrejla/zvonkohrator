@@ -17,7 +17,7 @@ class PlayFileModeThread(Thread):
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
     ):
-        super().__init__(daemon=True)
+        super().__init__(daemon=True, name="PlayFileModeThread")
         self.general_mode_lock = general_mode_lock
         self.should_stop_file_mode = should_stop_file_mode
         self.should_stop_keyboard_mode = should_stop_keyboard_mode

@@ -109,16 +109,18 @@ class PlayFileModeController:
         # TODO: handle should_stop when another game mode is requested
         self.should_stop = should_stop
         self.prev_button.when_pressed = lambda: Thread(
-            target=self.__handle_prev, daemon=True
+            target=self.__handle_prev, daemon=True, name="HandlePrevButtonThread"
         ).start()
         self.stop_button.when_pressed = lambda: Thread(
-            target=self.__handle_stop, daemon=True
+            target=self.__handle_stop, daemon=True, name="HandleStopButtonThread"
         ).start()
         self.play_pause_button.when_pressed = lambda: Thread(
-            target=self.__handle_play_pause, daemon=True
+            target=self.__handle_play_pause,
+            daemon=True,
+            name="HandlePlayPauseButtonThread",
         ).start()
         self.next_button.when_pressed = lambda: Thread(
-            target=self.__handle_next, daemon=True
+            target=self.__handle_next, daemon=True, name="HandleNextButtonThread"
         ).start()
 
         self.__show_init_display()

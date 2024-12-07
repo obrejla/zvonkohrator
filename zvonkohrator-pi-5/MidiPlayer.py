@@ -8,7 +8,9 @@ class MidiPlayer:
     def __init__(self, usb_port: str):
         self.serial = Serial(usb_port, 115200)
         self.notes_queue = Queue()
-        self.worker_thread = Thread(target=self.__write_worker, daemon=True).start()
+        self.worker_thread = Thread(
+            target=self.__write_worker, daemon=True, name="SerialWriter"
+        ).start()
 
     def __write_worker(self):
         while True:
