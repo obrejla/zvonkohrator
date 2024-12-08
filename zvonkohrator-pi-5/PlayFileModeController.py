@@ -40,10 +40,17 @@ class PlayFileModeController:
         )
         sleep(0.05)
 
-    def __show_init_display(self):
-        self.lcd.clear()
+    def __show_stopped(self):
         self.lcd.set_cursor(0, 0)
         self.lcd.printout("STOPPED!")
+
+    def __show_playing(self):
+        self.lcd.set_cursor(0, 0)
+        self.lcd.printout("PLAYING!")
+
+    def __show_init_display(self):
+        self.lcd.clear()
+        self.__show_stopped()
         self.__show_current_file()
 
     def __handle_prev(self):
@@ -75,15 +82,13 @@ class PlayFileModeController:
         self.is_playing.set()
         self.is_paused.clear()
 
-        self.lcd.set_cursor(0, 0)
-        self.lcd.printout("PLAYING!")
+        self.__show_playing()
 
         midi_file = MidiFile(self.__current_file_path())
 
         play_from_time_position(midi_file, self.midi_note_on_handler)
 
-        self.lcd.set_cursor(0, 0)
-        self.lcd.printout("STOPPED!")
+        self.__show_stopped()
 
         self.is_playing.clear()
 
