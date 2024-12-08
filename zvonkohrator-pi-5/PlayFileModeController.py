@@ -31,18 +31,20 @@ class PlayFileModeController:
     def __current_file_path(self):
         return self.file_paths[self.current_file_index]
 
-    def __show_current_file_name(self):
+    def __show_current_file(self):
         self.lcd.set_cursor(0, 1)
         self.lcd.printout(extract_file_name(self.__current_file_path()).ljust(16))
+        self.lcd.set_cursor(10, 0)
+        self.lcd.printout(
+            f"{self.current_file_index + 1:02d}/{len(self.file_paths):02d}"
+        )
         sleep(0.05)
 
     def __show_init_display(self):
         self.lcd.clear()
         self.lcd.set_cursor(0, 0)
         self.lcd.printout("STOPPED!")
-        self.lcd.set_cursor(10, 0)
-        self.lcd.printout("01/05")
-        self.__show_current_file_name()
+        self.__show_current_file()
 
     def __handle_prev(self):
         print("Wanna go to prev song...")
@@ -56,7 +58,7 @@ class PlayFileModeController:
                             else len(self.file_paths) - 1
                         )
                         print(f"current_file={self.__current_file_path()}")
-                        self.__show_current_file_name()
+                        self.__show_current_file()
                         # sleep for a while so the processing takes a bit more time so the potential another "trigger" of button pressed event does not pass
                         sleep(0.3)
                     else:
@@ -94,7 +96,7 @@ class PlayFileModeController:
                         self.current_file_index += 1
                         self.current_file_index %= len(self.file_paths)
                         print(f"current_file={self.__current_file_path()}")
-                        self.__show_current_file_name()
+                        self.__show_current_file()
                         # sleep for a while so the processing takes a bit more time so the potential another "trigger" of button pressed event does not pass
                         sleep(0.3)
                     else:
