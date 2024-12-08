@@ -1,9 +1,9 @@
 from threading import Event, Lock, Thread
+from time import sleep
 
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
 from PlayFileModeController import PlayFileModeController
-from utils import non_blocking_lock
 
 
 class PlayFileModeThread(Thread):
@@ -11,18 +11,17 @@ class PlayFileModeThread(Thread):
 
     def __init__(
         self,
-        general_mode_lock: Lock,
-        should_stop_file_mode: Event,
-        should_stop_keyboard_mode: Event,
+        run_file_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
     ):
         super().__init__(daemon=True, name="PlayFileModeThread")
-        self.general_mode_lock = general_mode_lock
-        self.should_stop_file_mode = should_stop_file_mode
-        self.should_stop_keyboard_mode = should_stop_keyboard_mode
+        self.run_file_mode = run_file_mode
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
+        self.play_file_mode_controller = PlayFileModeController(
+            self.lcd, self.midi_note_on_handler
+        )
 
     def __show_init_message(self):
         self.lcd.clear()
@@ -33,21 +32,25 @@ class PlayFileModeThread(Thread):
 
     def __run_file_mode(self):
         self.__show_init_message()
-        play_file_mode_controller = PlayFileModeController(
-            self.lcd, self.midi_note_on_handler
-        )
-        play_file_mode_controller.run(self.should_stop_file_mode)
+        self.play_file_mode_controller.run(self.run_file_mode)
 
     def run(self):
-        print("wanna play file...")
-        with non_blocking_lock(PlayFileModeThread.internal_lock) as locked:
-            if locked:
-                self.should_stop_keyboard_mode.set()
-                with self.general_mode_lock:
-                    print("General lock acquired! Starting 'play file mode'...")
-                    self.should_stop_keyboard_mode.clear()
-                    self.__run_file_mode()
-                    self.should_stop_file_mode.clear()
-                    print("...ending 'play file mode'. Releasing lock.")
-            else:
-                print("but is already playing file :/")
+        while True:
+            sleep(1)
+            if self.run_file_mode.is_set():
+                print("wanna play file...")
+                acquired = PlayFileModeThread.internal_lock.acquire(blocking=False)
+                if acquired:
+                    try:
+                        print(
+                            "PlayFileModeThread lock acquired! Starting 'play file mode'..."
+                        )
+                        t = Thread(target=self.__run_file_mode, name="FileModeRunner")
+                        t.start()
+                        t.join()
+                        print("...ending 'play file mode'.")
+                    finally:
+                        print("Releasing PlayFileModeThread lock.")
+                        PlayFileModeThread.internal_lock.release()
+                else:
+                    print("but is already playing file :/")

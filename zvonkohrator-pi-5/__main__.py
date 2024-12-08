@@ -1,5 +1,5 @@
 from signal import pause
-from threading import Event, Lock
+from threading import Event
 
 from gpiozero import Button
 from LCD import LCD
@@ -21,9 +21,8 @@ def main(lcd: LCD):
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
 
-    general_mode_lock = Lock()
-    should_stop_file_mode = Event()
-    should_stop_keyboard_mode = Event()
+    run_file_mode = Event()
+    run_keyboard_mode = Event()
 
     # USB hub - domaci
     # usb_port = "/dev/cu.usbmodem1201"
@@ -34,20 +33,27 @@ def main(lcd: LCD):
     midi_player = MidiPlayer(usb_port)
     midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
-    play_file_mode_button.when_pressed = lambda: PlayFileModeThread(
-        general_mode_lock,
-        should_stop_file_mode,
-        should_stop_keyboard_mode,
+    PlayFileModeThread(
+        run_file_mode,
         lcd,
         midi_note_on_handler,
     ).start()
-    play_keyboard_mode_button.when_pressed = lambda: PlayKeyboardModeThread(
-        general_mode_lock,
-        should_stop_file_mode,
-        should_stop_keyboard_mode,
+    PlayKeyboardModeThread(
+        run_keyboard_mode,
         midi_note_on_handler,
         lcd,
     ).start()
+
+    def switch_to_file_mode():
+        run_keyboard_mode.clear()
+        run_file_mode.set()
+
+    def switch_to_keyboard_mode():
+        run_file_mode.clear()
+        run_keyboard_mode.set()
+
+    play_file_mode_button.when_pressed = switch_to_file_mode
+    play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
 
     show_init_message(lcd)
 

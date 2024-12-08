@@ -110,9 +110,9 @@ class PlayFileModeController:
         else:
             print("...but already playing (I'm in handle next)")
 
-    def run(self, should_stop: Event):
+    def run(self, run_file_mode: Event):
         # TODO: handle should_stop when another game mode is requested
-        self.should_stop = should_stop
+        # self.should_stop = should_stop
         self.prev_button.when_pressed = lambda: Thread(
             target=self.__handle_prev, daemon=True, name="HandlePrevButtonThread"
         ).start()
@@ -130,5 +130,5 @@ class PlayFileModeController:
 
         self.__show_init_display()
 
-        while not should_stop.is_set():
+        while run_file_mode.is_set():
             sleep(1)

@@ -40,6 +40,6 @@ class MidiListener:
         else:
             time.sleep(0.001)
 
-    def listen(self, should_stop: Event):
-        while not should_stop.is_set():
+    def listen(self, run_keyboard_mode: Event):
+        while run_keyboard_mode.is_set():
             self.__read_command()

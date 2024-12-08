@@ -1,10 +1,10 @@
 from threading import Event, Lock, Thread
+from time import sleep
 
 from LCD import LCD
 from MidiCommandHandlers import MidiCommandHandlers
 from MidiListener import MidiListener
 from MidiNoteOnHandler import MidiNoteOnHandler
-from utils import non_blocking_lock
 
 
 class PlayKeyboardModeThread(Thread):
@@ -12,18 +12,17 @@ class PlayKeyboardModeThread(Thread):
 
     def __init__(
         self,
-        general_mode_lock: Lock,
-        should_stop_file_mode: Event,
-        should_stop_keyboard_mode: Event,
+        run_keyboard_mode: Event,
         midi_note_on_handler: MidiNoteOnHandler,
         lcd: LCD,
     ):
         super().__init__(daemon=True, name="PlayKeyboardModeThread")
-        self.general_mode_lock = general_mode_lock
-        self.should_stop_file_mode = should_stop_file_mode
-        self.should_stop_keyboard_mode = should_stop_keyboard_mode
+        self.run_keyboard_mode = run_keyboard_mode
         self.midi_note_on_handler = midi_note_on_handler
         self.lcd = lcd
+        midi_command_handlers = MidiCommandHandlers()
+        midi_command_handlers.register(self.midi_note_on_handler)
+        self.midi_listener = MidiListener(midi_command_handlers)
 
     def __show_init_message(self):
         self.lcd.clear()
@@ -34,21 +33,27 @@ class PlayKeyboardModeThread(Thread):
 
     def __run_keyboard_mode(self):
         self.__show_init_message()
-        midi_command_handlers = MidiCommandHandlers()
-        midi_command_handlers.register(self.midi_note_on_handler)
-        midi_listener = MidiListener(midi_command_handlers)
-        midi_listener.listen(self.should_stop_keyboard_mode)
+        self.midi_listener.listen(self.run_keyboard_mode)
 
     def run(self):
-        print("wanna play keyboard...")
-        with non_blocking_lock(PlayKeyboardModeThread.internal_lock) as locked:
-            if locked:
-                self.should_stop_file_mode.set()
-                with self.general_mode_lock:
-                    print("General lock acquired! Starting 'play keyboard mode'...")
-                    self.should_stop_file_mode.clear()
-                    self.__run_keyboard_mode()
-                    self.should_stop_keyboard_mode.clear()
-                    print("...ending 'play keyboard mode'. Releasing lock.")
-            else:
-                print("...but it is already playing keyboard :/")
+        while True:
+            sleep(1)
+            if self.run_keyboard_mode.is_set():
+                print("wanna play keyboard...")
+                acquired = PlayKeyboardModeThread.internal_lock.acquire(blocking=False)
+                if acquired:
+                    try:
+                        print(
+                            "PlayKeyboardModeThread lock acquired! Starting 'play keyboard mode'..."
+                        )
+                        t = Thread(
+                            target=self.__run_keyboard_mode, name="KeyboardModeRunner"
+                        )
+                        t.start()
+                        t.join()
+                        print("...ending 'play keyboard mode'.")
+                    finally:
+                        print("Releasing PlayKeyboardModeThread lock.")
+                        PlayKeyboardModeThread.internal_lock.release()
+                else:
+                    print("...but it is already playing keyboard :/")
