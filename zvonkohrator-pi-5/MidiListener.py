@@ -41,5 +41,5 @@ class MidiListener:
             time.sleep(0.001)
 
     def listen(self, should_stop: Event):
-        while True and not should_stop.is_set():
+        while not should_stop.is_set():
             self.__read_command()
