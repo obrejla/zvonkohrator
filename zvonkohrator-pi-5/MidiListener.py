@@ -18,12 +18,15 @@ class MidiListener:
 
         print(f"Ports: {ports_dict}")
 
-        # virtual midi keyboard on raspberry
-        # midi_in.open_port(ports_dict["VMPK Output:out 128:0"])
-        # virtual midi keyboard on mac
-        # midi_in.open_port(ports_dict["VMPK Output"])
-        # Minilab3 keyboard
-        midi_in.open_port(ports_dict["Minilab3:Minilab3 Minilab3 MIDI 24:0"])
+        if "Minilab3:Minilab3 Minilab3 MIDI 24:0" in ports_dict:
+            # Minilab3 keyboard
+            midi_in.open_port(ports_dict["Minilab3:Minilab3 Minilab3 MIDI 24:0"])
+        elif "VMPK Output:out 128:0" in ports_dict:
+            # virtual midi keyboard on raspberry
+            midi_in.open_port(ports_dict["VMPK Output:out 128:0"])
+        elif "VMPK Output" in ports_dict:
+            # virtual midi keyboard on mac
+            midi_in.open_port(ports_dict["VMPK Output"])
 
         print(f"Is port open: {midi_in.is_port_open()}")
         print("Listening...")
