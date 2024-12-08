@@ -112,7 +112,6 @@ class PlayFileModeController:
             print("...but already playing (I'm in handle next)")
 
     def run(self, should_stop: Event):
-        self.midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
         # TODO: handle should_stop when another game mode is requested
         self.should_stop = should_stop
         self.prev_button.when_pressed = lambda: Thread(
