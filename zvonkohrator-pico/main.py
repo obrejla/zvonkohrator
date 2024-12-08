@@ -31,23 +31,34 @@ NOTES_TO_PINS = {
     60: Pin(27, Pin.OUT),  # C4
 }
 
+
+def reset_all_notes():
+    for note in NOTES_TO_PINS.values():
+        note.off()
+
+
+reset_all_notes()
+
 # Set up the poll object
 poll_obj = select.poll()
 poll_obj.register(sys.stdin, select.POLLIN)
 
 # Loop indefinitely
 while True:
-    # Wait for input on stdin
-    poll_results = poll_obj.poll()  # the '1' is how long it will wait for message before looping again (in microseconds)
-    if poll_results:
-        # Read the data from stdin (read data coming from PC)
-        data = sys.stdin.readline().strip()
-        note = int(data)
-        if note > 0:
-            NOTES_TO_PINS[note].on()
+    try:
+        # Wait for input on stdin
+        poll_results = poll_obj.poll()  # the '1' is how long it will wait for message before looping again (in microseconds)
+        if poll_results:
+            # Read the data from stdin (read data coming from PC)
+            data = sys.stdin.readline().strip()
+            note = int(data)
+            if note > 0:
+                NOTES_TO_PINS[note].on()
+            else:
+                NOTES_TO_PINS[abs(note)].off()
+            continue
         else:
-            NOTES_TO_PINS[abs(note)].off()
-        continue
-    else:
-        # do something if no message received (like feed a watchdog timer)
-        continue
+            # do something if no message received (like feed a watchdog timer)
+            continue
+    except Exception:
+        reset_all_notes()
