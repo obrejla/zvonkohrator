@@ -148,7 +148,6 @@ while True:
         # Read the data from stdin (read data coming from PC)
         data = sys.stdin.readline().strip()
         note = int(data)
-        print(f"Received note: {note}")
         if note > 0:
             note_on(note)
         else:
