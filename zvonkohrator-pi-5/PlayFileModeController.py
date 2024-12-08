@@ -1,4 +1,3 @@
-from signal import pause
 from threading import Event, Lock, Thread
 from time import sleep
 
@@ -131,4 +130,5 @@ class PlayFileModeController:
 
         self.__show_init_display()
 
-        pause()
+        while not should_stop.is_set():
+            sleep(1)
