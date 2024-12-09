@@ -20,7 +20,6 @@ class PlayFileModeController:
         self.is_playing = Event()
         self.is_paused = Event()
         self.prev_next_lock = Lock()
-        self.play_pause_stop_lock = Lock()
         self.current_file_index = 0
         self.current_file_start_position = 0
         self.should_interrupt_playing = Event()
@@ -101,53 +100,45 @@ class PlayFileModeController:
 
     def __handle_pause(self):
         print("Wanna PAUSE the song...")
-        with non_blocking_lock(self.play_pause_stop_lock) as locked:
-            if locked:
-                if self.is_playing.is_set():
-                    self.is_paused.set()
-                    self.is_playing.clear()
-                    self.should_interrupt_playing.set()
-                else:
-                    print("...playing stopped in the meantime of PAUSING")
-            else:
-                print("...lock for PAUSE was not acquired.")
+        if self.is_playing.is_set():
+            self.is_paused.set()
+            self.is_playing.clear()
+            self.should_interrupt_playing.set()
+        else:
+            print("...but it is not PLAYING :/")
 
     def __handle_play(self):
         print("Wanna PLAY the song...")
-        with non_blocking_lock(self.play_pause_stop_lock) as locked:
-            if locked:
-                if not self.is_playing.is_set():
-                    self.is_playing.set()
-                    self.is_paused.clear()
-                    self.should_interrupt_playing.clear()
-                else:
-                    print("...playing started in the meantime of PLAYING")
+        if not self.is_playing.is_set():
+            self.is_playing.set()
+            self.is_paused.clear()
+            self.should_interrupt_playing.clear()
+
+            self.__show_playing()
+
+            midi_file = MidiFile(self.__current_file_path())
+
+            print(f"start_position={self.current_file_start_position}")
+            current_file_position = play_from_time_position(
+                midi_file,
+                self.midi_note_on_handler,
+                self.current_file_start_position,
+                self.should_interrupt_playing,
+            )
+
+            if self.should_interrupt_playing.is_set() and self.is_paused.is_set():
+                self.__show_paused()
+                self.current_file_start_position = current_file_position
+                print(f"current_file_position={current_file_position}")
+                print("...current file PAUSED.")
             else:
-                print("..lock for PLAY was not acquired.")
-        # TODO: following must by under the lock as well..but how can I pause then "not" accidentally? :/
-        self.__show_playing()
+                self.__show_stopped()
+                self.current_file_start_position = 0
+                print("...current file STOPPED.")
 
-        midi_file = MidiFile(self.__current_file_path())
-
-        print(f"start_position={self.current_file_start_position}")
-        current_file_position = play_from_time_position(
-            midi_file,
-            self.midi_note_on_handler,
-            self.current_file_start_position,
-            self.should_interrupt_playing,
-        )
-
-        if self.should_interrupt_playing.is_set() and self.is_paused.is_set():
-            self.__show_paused()
-            self.current_file_start_position = current_file_position
-            print(f"current_file_position={current_file_position}")
-            print("...current file PAUSED.")
+            self.is_playing.clear()
         else:
-            self.__show_stopped()
-            self.current_file_start_position = 0
-            print("...current file STOPPED.")
-
-        self.is_playing.clear()
+            print("...but it is already PLAYING...")
 
     def __handle_next(self):
         print("Wanna go to next song...")
