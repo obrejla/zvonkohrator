@@ -16,16 +16,14 @@ class MidiListener:
 
             print(f"Ports: {ports_dict}")
 
-            if "Minilab3:Minilab3 Minilab3 MIDI 24:0" in ports_dict:
-                # Minilab3 keyboard
-                self.midi.open_port(ports_dict["Minilab3:Minilab3 Minilab3 MIDI 24:0"])
-            elif "VMPK Output:out 128:0" in ports_dict:
-                # virtual midi keyboard on raspberry
-                self.midi.open_port(ports_dict["VMPK Output:out 128:0"])
-            elif "VMPK Output" in ports_dict:
-                # virtual midi keyboard on mac
-                self.midi.open_port(ports_dict["VMPK Output"])
-            else:
+            for device_port in ports_dict:
+                if device_port.startswith(
+                    "Minilab3:Minilab3 Minilab3 MIDI"
+                ) or device_port.startswith("VMPK Output"):
+                    self.midi.open_port(ports_dict[device_port])
+                    break
+
+            if not self.midi.is_port_open():
                 print("No available midi port!")
 
     def __read_command(self):
