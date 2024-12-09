@@ -82,12 +82,11 @@ class PlayFileModeController:
         print("Wanna STOP the song...")
         if self.is_playing.is_set():
             print("...which is PLAYING...")
-            self.is_playing.clear()
-            self.is_paused.clear()
             self.should_interrupt_playing.set()
         elif self.is_paused.is_set():
             print("...which is PAUSED...")
             self.__show_stopped()
+            self.is_paused.clear()
             self.current_file_start_position = 0
         else:
             print("...but is already stopped.")
@@ -101,8 +100,6 @@ class PlayFileModeController:
     def __handle_pause(self):
         print("Wanna PAUSE the song...")
         if self.is_playing.is_set():
-            self.is_paused.set()
-            self.is_playing.clear()
             self.should_interrupt_playing.set()
         else:
             print("...but it is not PLAYING :/")
@@ -126,11 +123,12 @@ class PlayFileModeController:
                 self.should_interrupt_playing,
             )
 
-            if self.should_interrupt_playing.is_set() and self.is_paused.is_set():
+            if self.should_interrupt_playing.is_set():
                 self.__show_paused()
                 self.current_file_start_position = current_file_position
                 print(f"current_file_position={current_file_position}")
                 print("...current file PAUSED.")
+                self.is_paused.set()
             else:
                 self.__show_stopped()
                 self.current_file_start_position = 0
@@ -190,3 +188,9 @@ class PlayFileModeController:
 
         while run_file_mode.is_set():
             sleep(1)
+
+        self.__handle_stop()
+        while self.is_playing.is_set():
+            sleep(0.3)
+
+        self.current_file_start_position = 0
