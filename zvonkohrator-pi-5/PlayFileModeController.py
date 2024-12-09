@@ -23,6 +23,7 @@ class PlayFileModeController:
         self.current_file_index = 0
         self.current_file_start_position = 0
         self.should_interrupt_playing = Event()
+        self.should_pause = Event()
         self.file_paths = (
             "./zvonkohrator-pi-5/midi-files/kocka-leze-dirou.mid",
             "./zvonkohrator-pi-5/midi-files/prsi-prsi.mid",
@@ -100,6 +101,7 @@ class PlayFileModeController:
     def __handle_pause(self):
         print("Wanna PAUSE the song...")
         if self.is_playing.is_set():
+            self.should_pause.set()
             self.should_interrupt_playing.set()
         else:
             print("...but it is not PLAYING :/")
@@ -123,10 +125,9 @@ class PlayFileModeController:
                 self.should_interrupt_playing,
             )
 
-            if self.should_interrupt_playing.is_set():
+            if self.should_interrupt_playing.is_set() and self.should_pause.is_set():
                 self.__show_paused()
                 self.current_file_start_position = current_file_position
-                print(f"current_file_position={current_file_position}")
                 print("...current file PAUSED.")
                 self.is_paused.set()
             else:
@@ -134,7 +135,9 @@ class PlayFileModeController:
                 self.current_file_start_position = 0
                 print("...current file STOPPED.")
 
+            print(f"current_file_position={self.current_file_start_position}")
             self.is_playing.clear()
+            self.should_pause.clear()
         else:
             print("...but it is already PLAYING...")
 
