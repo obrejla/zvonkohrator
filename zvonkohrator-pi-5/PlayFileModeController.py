@@ -189,8 +189,7 @@ class PlayFileModeController:
                 target=self.__handle_next, daemon=True, name="HandleNextButtonThread"
             ).start()
         )
-        # TODO: handle should_stop when another game mode is requested
-        # self.should_stop = should_stop
+
         self.prev_button.when_pressed = throttle_prev
         self.stop_button.when_pressed = throttle_stop
         self.play_pause_button.when_pressed = throttle_play_pause
