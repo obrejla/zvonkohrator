@@ -1,4 +1,5 @@
 import time
+from threading import Event
 
 from MidiNoteOnHandler import MidiNoteOnHandler
 from mido import MidiFile
@@ -28,7 +29,8 @@ def extract_note_on_messages_in_absolute_time(midi_file: MidiFile):
 def play_from_time_position(
     midi_file: MidiFile,
     midi_note_on_handler: MidiNoteOnHandler,
-    start_time_position: int = 0,
+    start_time_position: int,
+    should_interrupt_playing: Event,
 ):
     extracted_messages = extract_note_on_messages_in_absolute_time(midi_file)
     absolute_times = list(extracted_messages.keys())
@@ -41,9 +43,13 @@ def play_from_time_position(
     for current_time_position in range(start_time_position, num_of_absolute_times):
         current_time = absolute_times[current_time_position]
         for msg in extracted_messages[current_time]:
-            time.sleep(msg.time)
-            midi_note_on_handler.handle_note_on(msg.note, msg.velocity)
+            if not should_interrupt_playing.is_set():
+                time.sleep(msg.time)
+                midi_note_on_handler.handle_note_on(msg.note, msg.velocity)
+            else:
+                return current_time_position
     print(f"Stopped playing: {midi_file.filename}")
+    return 0
 
 
 if __name__ == "__main__":
