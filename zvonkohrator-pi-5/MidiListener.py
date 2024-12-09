@@ -25,6 +25,7 @@ class MidiListener:
 
             if not self.midi.is_port_open():
                 print("No available midi port!")
+        return self.midi.is_port_open()
 
     def __read_command(self):
         msg_and_dt = self.midi.get_message()
@@ -38,3 +39,4 @@ class MidiListener:
         print("Listening...")
         while run_keyboard_mode.is_set():
             self.__read_command()
+        self.midi.close_port()

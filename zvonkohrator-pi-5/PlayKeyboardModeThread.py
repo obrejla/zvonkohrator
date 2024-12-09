@@ -33,8 +33,15 @@ class PlayKeyboardModeThread(Thread):
 
     def __run_keyboard_mode(self):
         self.__show_init_message()
-        self.midi_listener.connect_midi_device()
-        self.midi_listener.listen(self.run_keyboard_mode)
+        if self.midi_listener.connect_midi_device():
+            self.midi_listener.listen(self.run_keyboard_mode)
+        else:
+            self.lcd.clear()
+            self.lcd.set_cursor(1, 0)
+            self.lcd.printout("CHYBA: KLAVESY")
+            self.lcd.set_cursor(3, 1)
+            self.lcd.printout("NENALEZENY")
+            self.run_keyboard_mode.clear()
 
     def run(self):
         while True:
