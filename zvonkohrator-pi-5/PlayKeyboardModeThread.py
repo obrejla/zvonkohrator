@@ -33,6 +33,7 @@ class PlayKeyboardModeThread(Thread):
 
     def __run_keyboard_mode(self):
         self.__show_init_message()
+        self.midi_listener.connect_midi_device()
         self.midi_listener.listen(self.run_keyboard_mode)
 
     def run(self):
