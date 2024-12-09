@@ -72,8 +72,6 @@ class PlayFileModeController:
                         )
                         print(f"current_file={self.__current_file_path()}")
                         self.__show_current_file()
-                        # sleep for a while so the processing takes a bit more time so the potential another "trigger" of button pressed event does not pass
-                        sleep(0.3)
                     else:
                         print("...playig started in the meantime of going to PREV :/")
                 else:
@@ -161,8 +159,6 @@ class PlayFileModeController:
                         self.current_file_index %= len(self.file_paths)
                         print(f"current_file={self.__current_file_path()}")
                         self.__show_current_file()
-                        # sleep for a while so the processing takes a bit more time so the potential another "trigger" of button pressed event does not pass
-                        sleep(0.3)
                     else:
                         print("...playig started in the meantime of going to NEXT :/")
                 else:
