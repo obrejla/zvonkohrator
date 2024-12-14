@@ -11,6 +11,9 @@ from utils import non_blocking_lock, throttle
 
 
 class PlayFileModeController:
+    LOCAL_DIR_PATH = "./zvonkohrator-pi-5/midi-files"
+    MEDIA_DIR_PATH = "/media/david"
+
     def __init__(self, lcd: LCD, midi_note_on_handler: MidiNoteOnHandler):
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
@@ -65,14 +68,14 @@ class PlayFileModeController:
         ]
 
     def __load_local_files(self):
-        local_dir_path = "./zvonkohrator-pi-5/midi-files"
-        local_midi_files = self.__load_midi_files_from_dir(local_dir_path)
+        local_midi_files = self.__load_midi_files_from_dir(
+            PlayFileModeController.LOCAL_DIR_PATH
+        )
         self.file_paths.extend(local_midi_files)
 
     def __load_usb_files(self):
-        media_dir_path = "/media/david"
-        for item in listdir(media_dir_path):
-            potential_usb_dir = f"{media_dir_path}/{item}"
+        for item in listdir(PlayFileModeController.MEDIA_DIR_PATH):
+            potential_usb_dir = f"{PlayFileModeController.MEDIA_DIR_PATH}/{item}"
             if path.isdir(potential_usb_dir):
                 print(f"Checking media: {potential_usb_dir}...")
                 usb_files = self.__load_midi_files_from_dir(potential_usb_dir)
