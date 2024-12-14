@@ -64,7 +64,7 @@ class PlayFileModeController:
         return [
             f"{dir_path}/{file_name}"
             for file_name in listdir(dir_path)
-            if file_name.endswith(".mid")
+            if file_name.endswith(".mid") and not file_name.startswith(".")
         ]
 
     def __load_local_files(self):
