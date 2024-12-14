@@ -1,3 +1,4 @@
+from os import listdir
 from threading import Event, Lock, Thread
 from time import sleep
 
@@ -24,11 +25,7 @@ class PlayFileModeController:
         self.current_file_start_position = 0
         self.should_interrupt_playing = Event()
         self.should_pause = Event()
-        self.file_paths = (
-            "./zvonkohrator-pi-5/midi-files/kocka-leze-dirou.mid",
-            "./zvonkohrator-pi-5/midi-files/prsi-prsi.mid",
-            "./zvonkohrator-pi-5/midi-files/skakal-pes.mid",
-        )
+        self.file_paths = []
 
     def __current_file_path(self):
         return self.file_paths[self.current_file_index]
@@ -58,6 +55,19 @@ class PlayFileModeController:
         self.lcd.clear()
         self.__show_stopped()
         self.__show_current_file()
+
+    def __load_local_files(self):
+        local_dir_path = "./zvonkohrator-pi-5/midi-files"
+        local_midi_files = [
+            f"{local_dir_path}/{file_name}"
+            for file_name in listdir(local_dir_path)
+            if file_name.endswith(".mid")
+        ]
+        self.file_paths.extend(local_midi_files)
+
+    def __load_files(self):
+        self.file_paths.clear()
+        self.__load_local_files()
 
     def __handle_prev(self):
         print("Wanna go to prev song...")
@@ -187,6 +197,7 @@ class PlayFileModeController:
         self.play_pause_button.when_pressed = throttle_play_pause
         self.next_button.when_pressed = throttle_next
 
+        self.__load_files()
         self.__show_init_display()
 
         while run_file_mode.is_set():
