@@ -1,4 +1,4 @@
-from os import listdir
+from os import listdir, path
 from threading import Event, Lock, Thread
 from time import sleep
 
@@ -56,18 +56,34 @@ class PlayFileModeController:
         self.__show_stopped()
         self.__show_current_file()
 
-    def __load_local_files(self):
-        local_dir_path = "./zvonkohrator-pi-5/midi-files"
-        local_midi_files = [
-            f"{local_dir_path}/{file_name}"
-            for file_name in listdir(local_dir_path)
+    def __load_midi_files_from_dir(self, dir_path):
+        print(f"Loading files from dir: {dir_path}")
+        return [
+            f"{dir_path}/{file_name}"
+            for file_name in listdir(dir_path)
             if file_name.endswith(".mid")
         ]
+
+    def __load_local_files(self):
+        local_dir_path = "./zvonkohrator-pi-5/midi-files"
+        local_midi_files = self.__load_midi_files_from_dir(local_dir_path)
         self.file_paths.extend(local_midi_files)
+
+    def __load_usb_files(self):
+        media_dir_path = "/media/david"
+        for item in listdir(media_dir_path):
+            potential_usb_dir = f"{media_dir_path}/{item}"
+            if path.isdir(potential_usb_dir):
+                print(f"Checking media: {potential_usb_dir}...")
+                usb_files = self.__load_midi_files_from_dir(potential_usb_dir)
+                self.file_paths.extend(usb_files)
+            else:
+                print(f"Not a directory: {item}")
 
     def __load_files(self):
         self.file_paths.clear()
         self.__load_local_files()
+        self.__load_usb_files()
 
     def __handle_prev(self):
         print("Wanna go to prev song...")
