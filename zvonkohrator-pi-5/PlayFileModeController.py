@@ -1,26 +1,28 @@
 from os import listdir, path
-from threading import Event, Lock, Thread
+from threading import Event, Lock
 from time import sleep
 
-from gpiozero import Button
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
 from midiutils import extract_file_name, play_from_time_position
 from mido import MidiFile
-from utils import non_blocking_lock, throttle
+from PlayerButtonsController import PlayerButtonsController
+from utils import non_blocking_lock
 
 
 class PlayFileModeController:
     LOCAL_DIR_PATH = "./zvonkohrator-pi-5/midi-files"
     MEDIA_DIR_PATH = "/media/david"
 
-    def __init__(self, lcd: LCD, midi_note_on_handler: MidiNoteOnHandler):
+    def __init__(
+        self,
+        lcd: LCD,
+        midi_note_on_handler: MidiNoteOnHandler,
+        player_buttons_controller: PlayerButtonsController,
+    ):
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
-        self.prev_button = Button(26)
-        self.stop_button = Button(19)
-        self.play_pause_button = Button(13)
-        self.next_button = Button(6)
+        self.player_buttons_controller = player_buttons_controller
         self.is_playing = Event()
         self.is_paused = Event()
         self.prev_next_lock = Lock()
@@ -188,33 +190,12 @@ class PlayFileModeController:
             print("...but already playing (I'm in handle next)")
 
     def run(self, run_file_mode: Event):
-        throttle_prev = throttle(
-            lambda: Thread(
-                target=self.__handle_prev, daemon=True, name="HandlePrevButtonThread"
-            ).start()
+        self.player_buttons_controller.add_on_prev_pressed(self.__handle_prev)
+        self.player_buttons_controller.add_on_stop_pressed(self.__handle_stop)
+        self.player_buttons_controller.add_on_play_pause_pressed(
+            self.__handle_play_pause
         )
-        throttle_stop = throttle(
-            lambda: Thread(
-                target=self.__handle_stop, daemon=True, name="HandleStopButtonThread"
-            ).start()
-        )
-        throttle_play_pause = throttle(
-            lambda: Thread(
-                target=self.__handle_play_pause,
-                daemon=True,
-                name="HandlePlayPauseButtonThread",
-            ).start()
-        )
-        throttle_next = throttle(
-            lambda: Thread(
-                target=self.__handle_next, daemon=True, name="HandleNextButtonThread"
-            ).start()
-        )
-
-        self.prev_button.when_pressed = throttle_prev
-        self.stop_button.when_pressed = throttle_stop
-        self.play_pause_button.when_pressed = throttle_play_pause
-        self.next_button.when_pressed = throttle_next
+        self.player_buttons_controller.add_on_next_pressed(self.__handle_next)
 
         self.__load_files()
         self.__show_init_display()

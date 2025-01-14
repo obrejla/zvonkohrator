@@ -3,6 +3,7 @@ from time import sleep
 
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
+from PlayerButtonsController import PlayerButtonsController
 from PlayFileModeController import PlayFileModeController
 
 
@@ -14,13 +15,14 @@ class PlayFileModeThread(Thread):
         run_file_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
+        player_buttons_controller: PlayerButtonsController,
     ):
         super().__init__(daemon=True, name="PlayFileModeThread")
         self.run_file_mode = run_file_mode
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.play_file_mode_controller = PlayFileModeController(
-            self.lcd, self.midi_note_on_handler
+            self.lcd, self.midi_note_on_handler, player_buttons_controller
         )
 
     def __show_init_message(self):

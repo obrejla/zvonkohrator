@@ -5,6 +5,7 @@ from gpiozero import Button
 from LCD import LCD
 from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
 from MidiPlayer import MidiPlayer
+from PlayerButtonsController import PlayerButtonsController
 from PlayFileModeThread import PlayFileModeThread
 from PlayKeyboardModeThread import PlayKeyboardModeThread
 
@@ -33,10 +34,10 @@ def main(lcd: LCD):
     midi_player = MidiPlayer(usb_port)
     midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
+    player_buttons_controller = PlayerButtonsController()
+
     PlayFileModeThread(
-        run_file_mode,
-        lcd,
-        midi_note_on_handler,
+        run_file_mode, lcd, midi_note_on_handler, player_buttons_controller
     ).start()
     PlayKeyboardModeThread(
         run_keyboard_mode,
