@@ -1,4 +1,5 @@
 from signal import pause
+from subprocess import check_call
 from threading import Event
 
 from gpiozero import Button
@@ -21,6 +22,7 @@ def show_init_message(lcd: LCD):
 def main(lcd: LCD):
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
+    shutdown_button = Button(14, hold_time=2)
 
     run_file_mode = Event()
     run_keyboard_mode = Event()
@@ -53,8 +55,12 @@ def main(lcd: LCD):
         run_file_mode.clear()
         run_keyboard_mode.set()
 
+    def shutdown():
+        check_call(["sudo", "poweroff"])
+
     play_file_mode_button.when_pressed = switch_to_file_mode
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
+    shutdown_button.when_held = shutdown
 
     show_init_message(lcd)
 
