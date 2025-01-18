@@ -3,7 +3,7 @@ from subprocess import check_call
 from threading import Event
 from time import sleep
 
-from gpiozero import Button
+from gpiozero import Button, LEDBoard
 from LCD import LCD
 from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
 from MidiPlayer import MidiPlayer
@@ -22,6 +22,8 @@ def show_init_message(lcd: LCD):
 
 
 def main(lcd: LCD):
+    game_mode_leds = LEDBoard(4, 17, 27, 22)
+    game_mode_leds.off()
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
     shutdown_button = Button(14, hold_time=3)
@@ -53,10 +55,12 @@ def main(lcd: LCD):
     def switch_to_file_mode():
         run_keyboard_mode.clear()
         run_file_mode.set()
+        game_mode_leds.value = (0, 0, 0, 1)
 
     def switch_to_keyboard_mode():
         run_file_mode.clear()
         run_keyboard_mode.set()
+        game_mode_leds.value = (1, 0, 0, 0)
 
     def shutdown():
         lcd.clear()
@@ -72,7 +76,11 @@ def main(lcd: LCD):
 
     show_init_message(lcd)
 
-    signal(SIGTERM, team_buttons_controller.clear_leds)
+    def on_sigterm():
+        team_buttons_controller.clear_leds()
+        game_mode_leds.off()
+
+    signal(SIGTERM, on_sigterm)
 
     pause()
 
