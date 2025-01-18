@@ -29,14 +29,26 @@ class PlayerButtonsController:
     def add_on_prev_pressed(self, on_prev_listener):
         self.on_prev_pressed_listeners.append(on_prev_listener)
 
+    def remove_on_prev_pressed(self, on_prev_listener):
+        self.on_prev_pressed_listeners.remove(on_prev_listener)
+
     def add_on_stop_pressed(self, on_stop_listener):
         self.on_stop_pressed_listeners.append(on_stop_listener)
+
+    def remove_on_stop_pressed(self, on_stop_listener):
+        self.on_stop_pressed_listeners.remove(on_stop_listener)
 
     def add_on_play_pause_pressed(self, on_play_pause_listener):
         self.on_play_pause_pressed_listeners.append(on_play_pause_listener)
 
+    def remove_on_play_pause_pressed(self, on_play_pause_listener):
+        self.on_play_pause_pressed_listeners.remove(on_play_pause_listener)
+
     def add_on_next_pressed(self, on_next_listener):
         self.on_next_pressed_listeners.append(on_next_listener)
+
+    def remove_on_next_pressed(self, on_next_listener):
+        self.on_next_pressed_listeners.remove(on_next_listener)
 
     def __handle_prev(self):
         for prev_listener in self.on_prev_pressed_listeners:

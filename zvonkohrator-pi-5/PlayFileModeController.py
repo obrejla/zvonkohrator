@@ -208,3 +208,10 @@ class PlayFileModeController:
             sleep(0.3)
 
         self.current_file_start_position = 0
+
+        self.player_buttons_controller.remove_on_prev_pressed(self.__handle_prev)
+        self.player_buttons_controller.remove_on_stop_pressed(self.__handle_stop)
+        self.player_buttons_controller.remove_on_play_pause_pressed(
+            self.__handle_play_pause
+        )
+        self.player_buttons_controller.remove_on_next_pressed(self.__handle_next)
