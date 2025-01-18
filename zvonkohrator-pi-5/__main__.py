@@ -1,6 +1,7 @@
 from signal import pause
 from subprocess import check_call
 from threading import Event
+from time import sleep
 
 from gpiozero import Button
 from LCD import LCD
@@ -56,6 +57,11 @@ def main(lcd: LCD):
         run_keyboard_mode.set()
 
     def shutdown():
+        lcd.clear()
+        lcd.set_cursor(2, 0)
+        lcd.printout("Vypinam...")
+        sleep(1)
+        lcd.clear()
         check_call(["sudo", "poweroff"])
 
     play_file_mode_button.when_pressed = switch_to_file_mode
