@@ -1,7 +1,15 @@
+from enum import Enum
 from threading import Thread
 
 from gpiozero import LED, Button
 from utils import throttle
+
+
+class Team(Enum):
+    RED = "Ce"
+    GREEN = "Ze"
+    BLUE = "Mo"
+    YELLOW = "Zl"
 
 
 class TeamButtonsController:
@@ -17,20 +25,27 @@ class TeamButtonsController:
 
         self.clear_leds()
 
-        throttle_red = throttle(lambda: self.__handle_red())
-        throttle_green = throttle(lambda: self.__handle_green())
-        throttle_blue = throttle(lambda: self.__handle_blue())
-        throttle_yellow = throttle(lambda: self.__handle_yellow())
+        throttle_red = throttle(lambda: self.__handle_pressed(Team.RED))
+        throttle_green = throttle(lambda: self.__handle_pressed(Team.GREEN))
+        throttle_blue = throttle(lambda: self.__handle_pressed(Team.BLUE))
+        throttle_yellow = throttle(lambda: self.__handle_pressed(Team.YELLOW))
 
         self.red_team_button.when_pressed = throttle_red
         self.green_team_button.when_pressed = throttle_green
         self.blue_team_button.when_pressed = throttle_blue
         self.yellow_team_button.when_pressed = throttle_yellow
 
-        self.on_red_pressed_listeners = []
-        self.on_green_pressed_listeners = []
-        self.on_blue_pressed_listeners = []
-        self.on_yellow_pressed_listeners = []
+        self.on_pressed_listeners = []
+
+    def turn_led_on(self, team_id: Team):
+        if team_id == Team.RED:
+            self.red_team_led.on()
+        elif team_id == Team.GREEN:
+            self.green_team_led.on()
+        elif team_id == Team.BLUE:
+            self.blue_team_led.on()
+        elif team_id == Team.YELLOW:
+            self.yellow_team_led.on()
 
     def clear_leds(self):
         self.red_team_led.off()
@@ -38,58 +53,16 @@ class TeamButtonsController:
         self.blue_team_led.off()
         self.yellow_team_led.off()
 
-    def add_on_red_pressed(self, on_red_listener):
-        self.on_red_pressed_listeners.append(on_red_listener)
+    def add_on_pressed(self, on_pressed_listener):
+        self.on_pressed_listeners.append(on_pressed_listener)
 
-    def remove_on_red_pressed(self, on_red_listener):
-        self.on_red_pressed_listeners.remove(on_red_listener)
+    def remove_on_pressed(self, on_pressed_listener):
+        self.on_pressed_listeners.append(on_pressed_listener)
 
-    def add_on_green_pressed(self, on_green_listener):
-        self.on_green_pressed_listeners.append(on_green_listener)
-
-    def remove_on_green_pressed(self, on_green_listener):
-        self.on_green_pressed_listeners.remove(on_green_listener)
-
-    def add_on_blue_pressed(self, on_blue_listener):
-        self.on_blue_pressed_listeners.append(on_blue_listener)
-
-    def remove_on_blue_pressed(self, on_blue_listener):
-        self.on_blue_pressed_listeners.remove(on_blue_listener)
-
-    def add_on_yellow_pressed(self, on_yellow_listener):
-        self.on_yellow_pressed_listeners.append(on_yellow_listener)
-
-    def remove_on_yellow_pressed(self, on_yellow_listener):
-        self.on_yellow_pressed_listeners.remove(on_yellow_listener)
-
-    def __handle_red(self):
-        self.red_team_led.on()
-        for red_listener in self.on_red_pressed_listeners:
+    def __handle_pressed(self, team_id: Team):
+        for listener in self.on_pressed_listeners:
             Thread(
-                target=red_listener, daemon=True, name="HandleRedTeamButtonThread"
-            ).start()
-
-    def __handle_green(self):
-        self.green_team_led.on()
-        for green_listener in self.on_green_pressed_listeners:
-            Thread(
-                target=green_listener, daemon=True, name="HandleGreenTeamButtonThread"
-            ).start()
-
-    def __handle_blue(self):
-        self.blue_team_led.on()
-        for blue_listener in self.on_blue_pressed_listeners:
-            Thread(
-                target=blue_listener,
+                target=lambda: listener(team_id),
                 daemon=True,
-                name="HandleBlueTeamButtonThread",
-            ).start()
-
-    def __handle_yellow(self):
-        self.yellow_team_led.on()
-        for yellow_listener in self.on_yellow_pressed_listeners:
-            Thread(
-                target=yellow_listener,
-                daemon=True,
-                name="HandleYellowButtonThread",
+                name="HandleTeamButtonThread",
             ).start()
