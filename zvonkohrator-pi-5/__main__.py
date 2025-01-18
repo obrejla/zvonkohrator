@@ -22,7 +22,7 @@ def show_init_message(lcd: LCD):
 def main(lcd: LCD):
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
-    shutdown_button = Button(14, hold_time=2)
+    shutdown_button = Button(14, hold_time=3)
 
     run_file_mode = Event()
     run_keyboard_mode = Event()
