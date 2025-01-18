@@ -1,4 +1,4 @@
-from signal import pause
+from signal import SIGTERM, pause, signal
 from subprocess import check_call
 from threading import Event
 from time import sleep
@@ -71,6 +71,8 @@ def main(lcd: LCD):
     shutdown_button.when_held = shutdown
 
     show_init_message(lcd)
+
+    signal(SIGTERM, team_buttons_controller.clear_leds)
 
     pause()
 

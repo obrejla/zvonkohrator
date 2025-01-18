@@ -63,18 +63,21 @@ class TeamButtonsController:
         self.on_yellow_pressed_listeners.remove(on_yellow_listener)
 
     def __handle_red(self):
+        self.red_team_led.on()
         for red_listener in self.on_red_pressed_listeners:
             Thread(
                 target=red_listener, daemon=True, name="HandleRedTeamButtonThread"
             ).start()
 
     def __handle_green(self):
+        self.green_team_led.on()
         for green_listener in self.on_green_pressed_listeners:
             Thread(
                 target=green_listener, daemon=True, name="HandleGreenTeamButtonThread"
             ).start()
 
     def __handle_blue(self):
+        self.blue_team_led.on()
         for blue_listener in self.on_blue_pressed_listeners:
             Thread(
                 target=blue_listener,
@@ -83,6 +86,7 @@ class TeamButtonsController:
             ).start()
 
     def __handle_yellow(self):
+        self.yellow_team_led.on()
         for yellow_listener in self.on_yellow_pressed_listeners:
             Thread(
                 target=yellow_listener,
