@@ -22,14 +22,15 @@ class PlayKeyboardModeThread(Thread):
         self.lcd = lcd
         midi_command_handlers = MidiCommandHandlers()
         midi_command_handlers.register(self.midi_note_on_handler)
-        self.midi_listener = MidiListener(midi_command_handlers)
+        self.midi_listener = MidiListener(midi_command_handlers, lcd)
 
     def __show_init_message(self):
         self.lcd.clear()
         self.lcd.set_cursor(2, 0)
         self.lcd.printout("* HERNI MOD *")
         self.lcd.set_cursor(2, 1)
-        self.lcd.printout("MIDI klavesy")
+        self.lcd.printout("MIDI Keyboard")
+        sleep(1)
 
     def __run_keyboard_mode(self):
         self.__show_init_message()

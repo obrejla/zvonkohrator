@@ -7,10 +7,11 @@ from MidiNoteOnHandler import MidiNoteOnHandler
 from midiutils import extract_file_name, play_from_time_position
 from mido import MidiFile
 from PlayerButtonsController import PlayerButtonsController
+from TeamButtonsController import Team, TeamButtonsController
 from utils import non_blocking_lock
 
 
-class PlayFileModeController:
+class FilePlayerController:
     LOCAL_DIR_PATH = "./zvonkohrator-pi-5/midi-files"
     MEDIA_DIR_PATH = "/media/david"
 
@@ -19,10 +20,14 @@ class PlayFileModeController:
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
         player_buttons_controller: PlayerButtonsController,
+        team_buttons_controller: TeamButtonsController,
     ):
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.player_buttons_controller = player_buttons_controller
+        self.team_buttons_controller = team_buttons_controller
+        self.team_press_lock = Lock()
+        self.team_press_list = []
         self.is_playing = Event()
         self.is_paused = Event()
         self.prev_next_lock = Lock()
@@ -38,11 +43,11 @@ class PlayFileModeController:
     def __show_current_file(self):
         self.lcd.set_cursor(0, 1)
         self.lcd.printout(extract_file_name(self.__current_file_path()).ljust(16))
-        self.lcd.set_cursor(10, 0)
+        self.lcd.set_cursor(11, 0)
         self.lcd.printout(
             f"{self.current_file_index + 1:02d}/{len(self.file_paths):02d}"
         )
-        sleep(0.05)
+        # sleep(0.05)
 
     def __show_stopped(self):
         self.lcd.set_cursor(0, 0)
@@ -71,13 +76,13 @@ class PlayFileModeController:
 
     def __load_local_files(self):
         local_midi_files = self.__load_midi_files_from_dir(
-            PlayFileModeController.LOCAL_DIR_PATH
+            FilePlayerController.LOCAL_DIR_PATH
         )
         self.file_paths.extend(local_midi_files)
 
     def __load_usb_files(self):
-        for item in listdir(PlayFileModeController.MEDIA_DIR_PATH):
-            potential_usb_dir = f"{PlayFileModeController.MEDIA_DIR_PATH}/{item}"
+        for item in listdir(FilePlayerController.MEDIA_DIR_PATH):
+            potential_usb_dir = f"{FilePlayerController.MEDIA_DIR_PATH}/{item}"
             if path.isdir(potential_usb_dir):
                 print(f"Checking media: {potential_usb_dir}...")
                 usb_files = self.__load_midi_files_from_dir(potential_usb_dir)
@@ -115,11 +120,13 @@ class PlayFileModeController:
         if self.is_playing.is_set():
             print("...which is PLAYING...")
             self.should_interrupt_playing.set()
+            self.__clear_teams()
         elif self.is_paused.is_set():
             print("...which is PAUSED...")
             self.__show_stopped()
             self.is_paused.clear()
             self.current_file_start_position = 0
+            self.__clear_teams()
         else:
             print("...but is already stopped.")
 
@@ -145,6 +152,7 @@ class PlayFileModeController:
             self.should_interrupt_playing.clear()
 
             self.__show_playing()
+            self.__clear_teams()
 
             midi_file = MidiFile(self.__current_file_path())
 
@@ -189,6 +197,43 @@ class PlayFileModeController:
         else:
             print("...but already playing (I'm in handle next)")
 
+    def __clear_teams(self):
+        self.team_buttons_controller.clear_leds()
+        self.team_press_list.clear()
+        self.__show_current_file()
+
+    def __display_teams(self):
+        self.lcd.clear()
+        self.lcd.set_cursor(0, 0)
+        self.lcd.printout(f"PAUSED!     1:{self.team_press_list[0].value}")
+        if len(self.team_press_list) > 1:
+            self.lcd.set_cursor(0, 1)
+            self.lcd.printout(f"2:{self.team_press_list[1].value}".ljust(16))
+        if len(self.team_press_list) > 2:
+            self.lcd.set_cursor(6, 1)
+            self.lcd.printout(f"3:{self.team_press_list[2].value}".ljust(10))
+        if len(self.team_press_list) > 3:
+            self.lcd.set_cursor(12, 1)
+            self.lcd.printout(f"4:{self.team_press_list[3].value}")
+
+    def __handle_team_pressed(self, team_id: Team):
+        print(f"Wanna handle team button press ({team_id})...")
+        if self.is_playing.is_set() or self.is_paused.is_set():
+            self.__handle_pause()
+            self.team_press_lock.acquire()
+            try:
+                if (
+                    team_id not in self.team_press_list
+                    and len(self.team_press_list) < 4
+                ):
+                    self.team_press_list.append(team_id)
+                    self.team_buttons_controller.turn_led_on(team_id)
+                    self.__display_teams()
+            finally:
+                self.team_press_lock.release()
+        else:
+            print("...but song is neither playing nor paused.")
+
     def run(self, run_file_mode: Event):
         self.player_buttons_controller.add_on_prev_pressed(self.__handle_prev)
         self.player_buttons_controller.add_on_stop_pressed(self.__handle_stop)
@@ -196,6 +241,8 @@ class PlayFileModeController:
             self.__handle_play_pause
         )
         self.player_buttons_controller.add_on_next_pressed(self.__handle_next)
+
+        self.team_buttons_controller.add_on_pressed(self.__handle_team_pressed)
 
         self.__load_files()
         self.__show_init_display()
@@ -215,3 +262,7 @@ class PlayFileModeController:
             self.__handle_play_pause
         )
         self.player_buttons_controller.remove_on_next_pressed(self.__handle_next)
+
+        self.team_buttons_controller.remove_on_pressed(self.__handle_team_pressed)
+        self.team_buttons_controller.clear_leds()
+        self.team_press_list.clear()

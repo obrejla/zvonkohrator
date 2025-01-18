@@ -1,10 +1,25 @@
 from threading import Event, Lock, Thread
 from time import sleep
 
+from FilePlayerController import FilePlayerController
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
 from PlayerButtonsController import PlayerButtonsController
-from PlayFileModeController import PlayFileModeController
+from TeamButtonsController import Team, TeamButtonsController
+
+
+class DummyTeamButtonsController(TeamButtonsController):
+    def clear_leds(self):
+        pass
+
+    def turn_led_on(self, team_id: Team):
+        pass
+
+    def add_on_pressed(self, on_pressed_listener):
+        pass
+
+    def remove_on_pressed(self, on_pressed_listener):
+        pass
 
 
 class PlayFileModeThread(Thread):
@@ -21,20 +36,24 @@ class PlayFileModeThread(Thread):
         self.run_file_mode = run_file_mode
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
-        self.play_file_mode_controller = PlayFileModeController(
-            self.lcd, self.midi_note_on_handler, player_buttons_controller
+        self.file_player_controller = FilePlayerController(
+            self.lcd,
+            self.midi_note_on_handler,
+            player_buttons_controller,
+            DummyTeamButtonsController(),
         )
 
     def __show_init_message(self):
         self.lcd.clear()
         self.lcd.set_cursor(2, 0)
         self.lcd.printout("* HERNI MOD *")
-        self.lcd.set_cursor(0, 1)
-        self.lcd.printout("Prehravani MIDI")
+        self.lcd.set_cursor(2, 1)
+        self.lcd.printout("File Player")
+        sleep(1)
 
     def __run_file_mode(self):
         self.__show_init_message()
-        self.play_file_mode_controller.run(self.run_file_mode)
+        self.file_player_controller.run(self.run_file_mode)
 
     def run(self):
         while True:
