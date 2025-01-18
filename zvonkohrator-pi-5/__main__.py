@@ -79,6 +79,7 @@ def main(lcd: LCD):
     def on_sigterm():
         team_buttons_controller.clear_leds()
         game_mode_leds.off()
+        lcd.clear()
 
     signal(SIGTERM, on_sigterm)
 
