@@ -69,7 +69,7 @@ NOTE_ON_BYTE = "9"
 NOTE_OFF_BYTE = "8"
 
 # holy grail so the "cink" is the best
-DEFAULT_NOTE_OFF_DELAY = 0.05
+DEFAULT_NOTE_OFF_DELAY = 0.15
 
 
 class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
