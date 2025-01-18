@@ -10,6 +10,7 @@ from MidiPlayer import MidiPlayer
 from PlayerButtonsController import PlayerButtonsController
 from PlayFileModeThread import PlayFileModeThread
 from PlayKeyboardModeThread import PlayKeyboardModeThread
+from TeamButtonsController import TeamButtonsController
 
 
 def show_init_message(lcd: LCD):
@@ -37,6 +38,7 @@ def main(lcd: LCD):
     midi_player = MidiPlayer(usb_port)
     midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
+    team_buttons_controller = TeamButtonsController()
     player_buttons_controller = PlayerButtonsController()
 
     PlayFileModeThread(
