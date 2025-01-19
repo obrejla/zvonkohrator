@@ -28,6 +28,7 @@ def main(lcd: LCD):
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
     play_team_mode_button = Button(0)
+    energy_button = Button(5)
     shutdown_button = Button(14, hold_time=3)
 
     run_file_mode = Event()
@@ -80,6 +81,12 @@ def main(lcd: LCD):
         run_team_mode.set()
         game_mode_leds.value = (0, 0, 1, 0)
 
+    def energy_on():
+        print("Energy flows!")
+
+    def energy_off():
+        print("...no energy :/")
+
     def shutdown():
         lcd.clear()
         lcd.set_cursor(2, 0)
@@ -91,6 +98,8 @@ def main(lcd: LCD):
     play_file_mode_button.when_pressed = switch_to_file_mode
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
     play_team_mode_button.when_pressed = switch_to_team_mode
+    energy_button.when_pressed = energy_on
+    energy_button.when_released = energy_off
     shutdown_button.when_held = shutdown
 
     show_init_message(lcd)
