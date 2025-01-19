@@ -234,7 +234,7 @@ class FilePlayerController:
         else:
             print("...but song is neither playing nor paused.")
 
-    def run(self, run_file_mode: Event):
+    def run(self, run_mode: Event):
         self.player_buttons_controller.add_on_prev_pressed(self.__handle_prev)
         self.player_buttons_controller.add_on_stop_pressed(self.__handle_stop)
         self.player_buttons_controller.add_on_play_pause_pressed(
@@ -247,7 +247,7 @@ class FilePlayerController:
         self.__load_files()
         self.__show_init_display()
 
-        while run_file_mode.is_set():
+        while run_mode.is_set():
             sleep(1)
 
         self.__handle_stop()
