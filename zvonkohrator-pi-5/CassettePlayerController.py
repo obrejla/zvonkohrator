@@ -182,6 +182,7 @@ class CassettePlayerController:
                 print("...current cassette PAUSED.")
                 self.is_paused.set()
             else:
+                self.current_cassette_file_index = 0
                 self.__show_init_display()
                 self.current_cassette_file_start_position = 0
                 print("...current cassette STOPPED.")
