@@ -56,9 +56,12 @@ class CassettePlayerController:
             )
             if matched_file_number is not None:
                 cassette_number = int(matched_file_number.group(1))
-                self.file_paths[cassette_number] = (
-                    f"{CassettePlayerController.LOCAL_DIR_PATH}/{file_name}"
-                )
+                if cassette_number > 0 and cassette_number < 16:
+                    self.file_paths[cassette_number] = (
+                        f"{CassettePlayerController.LOCAL_DIR_PATH}/{file_name}"
+                    )
+                else:
+                    print(f"Cassette number out of range! {cassette_number}")
 
     def __load_files(self):
         self.__reset_file_paths()
