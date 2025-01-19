@@ -1,8 +1,11 @@
 from threading import Event, Lock, Thread
 from time import sleep
 
+from CassetteDetector import CassetteDetector
+from CassettePlayerController import CassettePlayerController
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
+from PlayerButtonsController import PlayerButtonsController
 
 
 class PlayCassetteModeThread(Thread):
@@ -13,22 +16,31 @@ class PlayCassetteModeThread(Thread):
         run_cassette_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
+        player_buttons_controller: PlayerButtonsController,
     ):
         super().__init__(daemon=True, name="PlayCassetteModeThread")
         self.run_cassette_mode = run_cassette_mode
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
+        self.player_buttons_controller = player_buttons_controller
+        self.cassette_player_controller = CassettePlayerController(
+            self.lcd,
+            self.midi_note_on_handler,
+            self.player_buttons_controller,
+            CassetteDetector(),
+        )
 
     def __show_init_message(self):
         self.lcd.clear()
         self.lcd.set_cursor(2, 0)
         self.lcd.printout("* HERNI MOD *")
         self.lcd.set_cursor(0, 1)
-        self.lcd.printout("Prehravani KAZET")
+        self.lcd.printout("Cassette Player")
+        sleep(1)
 
     def __run_cassette_mode(self):
         self.__show_init_message()
-        self.play_cassette_mode_controller.run(self.run_cassette_mode)
+        self.cassette_player_controller.run(self.run_cassette_mode)
 
     def run(self):
         while True:
@@ -39,10 +51,10 @@ class PlayCassetteModeThread(Thread):
                 if acquired:
                     try:
                         print(
-                            "PlayFileModeThread lock acquired! Starting 'play file mode'..."
+                            "PlayCassetteModeThread lock acquired! Starting 'play cassette mode'..."
                         )
                         t = Thread(
-                            target=self.__run_cassette_mode, name="FileModeRunner"
+                            target=self.__run_cassette_mode, name="CassetteModeRunner"
                         )
                         t.start()
                         t.join()
