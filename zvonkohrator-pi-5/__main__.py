@@ -121,7 +121,7 @@ def main(lcd: LCD):
 
     show_init_message(lcd)
 
-    def on_sigterm():
+    def on_sigterm(signum, frame):
         team_buttons_controller.clear_leds()
         game_mode_leds.off()
         lcd.clear()
