@@ -9,3 +9,4 @@ gpiozero~=2.0.1
 smbus~=1.1.post2
 lgpio~=0.2.2.0
 mido~=1.3.3
+bluedot~=2.0.0

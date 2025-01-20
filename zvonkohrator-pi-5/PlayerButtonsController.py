@@ -1,11 +1,13 @@
 from threading import Thread
 
+from bluedot import BlueDot
 from gpiozero import Button
 from utils import throttle
 
 
 class PlayerButtonsController:
     def __init__(self):
+        bd = BlueDot(cols=7, rows=1)
         self.prev_button = Button(26)
         self.stop_button = Button(19)
         self.play_pause_button = Button(13)
@@ -20,6 +22,17 @@ class PlayerButtonsController:
         self.stop_button.when_pressed = throttle_stop
         self.play_pause_button.when_pressed = throttle_play_pause
         self.next_button.when_pressed = throttle_next
+        bd[0, 0].when_pressed = throttle_prev
+        bd[0, 0].color = "yellow"
+        bd[1, 0].visible = False
+        bd[2, 0].when_pressed = throttle_stop
+        bd[2, 0].color = "red"
+        bd[3, 0].visible = False
+        bd[4, 0].when_pressed = throttle_play_pause
+        bd[4, 0].color = "green"
+        bd[5, 0].visible = False
+        bd[6, 0].when_pressed = throttle_next
+        bd[6, 0].color = "yellow"
 
         self.on_prev_pressed_listeners = []
         self.on_stop_pressed_listeners = []
