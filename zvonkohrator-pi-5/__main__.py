@@ -1,4 +1,4 @@
-from signal import SIGTERM, pause, signal
+from signal import SIGTERM, signal
 from subprocess import check_call
 from threading import Event
 from time import sleep
@@ -24,6 +24,7 @@ def show_init_message(lcd: LCD):
 
 
 def main(lcd: LCD):
+    kill = Event()
     game_mode_leds = LEDBoard(4, 17, 27, 22)
     game_mode_leds.off()
     play_file_mode_button = Button(9)
@@ -122,13 +123,16 @@ def main(lcd: LCD):
     show_init_message(lcd)
 
     def on_sigterm(signum, frame):
-        team_buttons_controller.clear_leds()
-        game_mode_leds.off()
-        lcd.clear()
+        kill.set()
 
     signal(SIGTERM, on_sigterm)
 
-    pause()
+    while not kill.is_set():
+        sleep(1)
+
+    team_buttons_controller.clear_leds()
+    game_mode_leds.off()
+    lcd.clear()
 
 
 if __name__ == "__main__":
