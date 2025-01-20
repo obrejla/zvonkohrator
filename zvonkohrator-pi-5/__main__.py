@@ -104,12 +104,15 @@ def main(lcd: LCD):
     def energy_off():
         print("...no energy :/")
 
-    def shutdown():
+    def show_shutdown_message():
         lcd.clear()
         lcd.set_cursor(2, 0)
         lcd.printout("Vypinam...")
         sleep(1)
         lcd.clear()
+
+    def shutdown():
+        show_shutdown_message()
         check_call(["sudo", "poweroff"])
 
     play_file_mode_button.when_pressed = switch_to_file_mode
