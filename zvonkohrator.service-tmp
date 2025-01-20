@@ -1,0 +1,12 @@
+[Unit]
+Description=Zvonkohrator Service
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/bash /home/david/Projects/zvonkohrator/zvonkohrator-start.sh
+WorkingDirectory=/home/david/Projects/zvonkohrator
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
