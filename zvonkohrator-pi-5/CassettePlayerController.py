@@ -68,29 +68,35 @@ class CassettePlayerController:
         self.__load_local_files()
         print(f"Cassettes paths: {self.file_paths}")
 
+    def __show_loaded_bulk(self):
+        self.lcd.clear()
+        self.lcd.set_cursor(4, 0)
+        self.lcd.printout("LOADED!")
+        self.lcd.set_cursor(3, 1)
+        self.lcd.printout(f"kazeta: {self.current_cassette_file_index}")
+
     def __show_loaded(self):
-        with self.lcd_lock:
-            self.lcd.clear()
-            self.lcd.set_cursor(4, 0)
-            self.lcd.printout("LOADED!")
-            self.lcd.set_cursor(3, 1)
-            self.lcd.printout(f"kazeta: {self.current_cassette_file_index}")
+        self.lcd.bulk_modify(self.__show_loaded_bulk)
+
+    def __show_not_available_bulk(self):
+        self.lcd.clear()
+        self.lcd.set_cursor(2, 0)
+        self.lcd.printout("Neexistuje!")
+        self.lcd.set_cursor(3, 1)
+        self.lcd.printout(f"kazeta: {self.current_cassette_file_index}")
 
     def __show_not_available(self):
-        with self.lcd_lock:
-            self.lcd.clear()
-            self.lcd.set_cursor(2, 0)
-            self.lcd.printout("Neexistuje!")
-            self.lcd.set_cursor(3, 1)
-            self.lcd.printout(f"kazeta: {self.current_cassette_file_index}")
+        self.lcd.bulk_modify(self.__show_not_available_bulk)
+
+    def __show_insert_bulk(self):
+        self.lcd.clear()
+        self.lcd.set_cursor(5, 0)
+        self.lcd.printout("Vlozte")
+        self.lcd.set_cursor(3, 1)
+        self.lcd.printout("kazetu...")
 
     def __show_insert(self):
-        with self.lcd_lock:
-            self.lcd.clear()
-            self.lcd.set_cursor(5, 0)
-            self.lcd.printout("Vlozte")
-            self.lcd.set_cursor(3, 1)
-            self.lcd.printout("kazetu...")
+        self.lcd.bulk_modify(self.__show_insert_bulk)
 
     def __is_selected_valid_cassette(self):
         return self.__current_file_path() != ""
@@ -104,21 +110,25 @@ class CassettePlayerController:
         else:
             self.__show_insert()
 
+    def __show_playing_bulk(self):
+        self.lcd.clear()
+        self.lcd.set_cursor(4, 0)
+        self.lcd.printout("PLAYING!")
+        self.lcd.set_cursor(3, 1)
+        self.lcd.printout(f"kazeta: {self.current_cassette_file_index}")
+
     def __show_playing(self):
-        with self.lcd_lock:
-            self.lcd.clear()
-            self.lcd.set_cursor(4, 0)
-            self.lcd.printout("PLAYING!")
-            self.lcd.set_cursor(3, 1)
-            self.lcd.printout(f"kazeta: {self.current_cassette_file_index}")
+        self.lcd.bulk_modify(self.__show_playing_bulk)
+
+    def __show_paused_bulk(self):
+        self.lcd.clear()
+        self.lcd.set_cursor(4, 0)
+        self.lcd.printout("PAUSED!")
+        self.lcd.set_cursor(3, 1)
+        self.lcd.printout(f"kazeta: {self.current_cassette_file_index}")
 
     def __show_paused(self):
-        with self.lcd_lock:
-            self.lcd.clear()
-            self.lcd.set_cursor(4, 0)
-            self.lcd.printout("PAUSED!")
-            self.lcd.set_cursor(3, 1)
-            self.lcd.printout(f"kazeta: {self.current_cassette_file_index}")
+        self.lcd.bulk_modify(self.__show_paused_bulk)
 
     def __current_file_path(self):
         return self.file_paths[self.current_cassette_file_index]

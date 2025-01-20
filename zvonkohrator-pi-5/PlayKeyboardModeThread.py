@@ -24,7 +24,7 @@ class PlayKeyboardModeThread(Thread):
         midi_command_handlers.register(self.midi_note_on_handler)
         self.midi_listener = MidiListener(midi_command_handlers, lcd)
 
-    def __show_init_message(self):
+    def __show_init_message_bulk(self):
         self.lcd.clear()
         self.lcd.set_cursor(2, 0)
         self.lcd.printout("* HERNI MOD *")
@@ -32,12 +32,18 @@ class PlayKeyboardModeThread(Thread):
         self.lcd.printout("MIDI Keyboard")
         sleep(1)
 
-    def __show_no_keyboard_message(self):
+    def __show_init_message(self):
+        self.lcd.bulk_modify(self.__show_init_message_bulk)
+
+    def __show_no_keyboard_message_bulk(self):
         self.lcd.clear()
         self.lcd.set_cursor(1, 0)
         self.lcd.printout("CHYBA: KLAVESY")
         self.lcd.set_cursor(3, 1)
         self.lcd.printout("NENALEZENY")
+
+    def __show_no_keyboard_message(self):
+        self.lcd.bulk_modify(self.__show_no_keyboard_message_bulk)
 
     def __run_keyboard_mode(self):
         self.__show_init_message()

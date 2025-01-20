@@ -40,31 +40,45 @@ class FilePlayerController:
     def __current_file_path(self):
         return self.file_paths[self.current_file_index]
 
-    def __show_current_file(self):
+    def __show_current_file_bulk(self):
         self.lcd.set_cursor(0, 1)
         self.lcd.printout(extract_file_name(self.__current_file_path()).ljust(16))
         self.lcd.set_cursor(11, 0)
         self.lcd.printout(
             f"{self.current_file_index + 1:02d}/{len(self.file_paths):02d}"
         )
-        # sleep(0.05)
 
-    def __show_stopped(self):
+    def __show_current_file(self):
+        self.lcd.bulk_modify(self.__show_current_file_bulk)
+
+    def __show_stopped_bulk(self):
         self.lcd.set_cursor(0, 0)
         self.lcd.printout("STOPPED!".ljust(11))
 
-    def __show_playing(self):
+    def __show_stopped(self):
+        self.lcd.bulk_modify(self.__show_stopped_bulk)
+
+    def __show_playing_bulk(self):
         self.lcd.set_cursor(0, 0)
         self.lcd.printout("PLAYING!".ljust(11))
 
-    def __show_paused(self):
+    def __show_playing(self):
+        self.lcd.bulk_modify(self.__show_playing_bulk)
+
+    def __show_paused_bulk(self):
         self.lcd.set_cursor(0, 0)
         self.lcd.printout("PAUSED!".ljust(11))
 
-    def __show_init_display(self):
+    def __show_paused(self):
+        self.lcd.bulk_modify(self.__show_paused_bulk)
+
+    def __show_init_display_bulk(self):
         self.lcd.clear()
         self.__show_stopped()
         self.__show_current_file()
+
+    def __show_init_display(self):
+        self.lcd.bulk_modify(self.__show_init_display_bulk)
 
     def __load_midi_files_from_dir(self, dir_path):
         print(f"Loading files from dir: {dir_path}")
@@ -202,7 +216,7 @@ class FilePlayerController:
         self.team_press_list.clear()
         self.__show_current_file()
 
-    def __display_teams(self):
+    def __display_teams_bulk(self):
         self.lcd.clear()
         self.lcd.set_cursor(0, 0)
         self.lcd.printout(f"PAUSED!     1:{self.team_press_list[0].value}")
@@ -215,6 +229,9 @@ class FilePlayerController:
         if len(self.team_press_list) > 3:
             self.lcd.set_cursor(12, 1)
             self.lcd.printout(f"4:{self.team_press_list[3].value}")
+
+    def __display_teams(self):
+        self.lcd.bulk_modify(self.__display_teams_bulk)
 
     def __handle_team_pressed(self, team_id: Team):
         print(f"Wanna handle team button press ({team_id})...")

@@ -1,10 +1,10 @@
 from threading import Event, Lock, Thread
 from time import sleep
 
+from FilePlayerController import FilePlayerController
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
 from PlayerButtonsController import PlayerButtonsController
-from FilePlayerController import FilePlayerController
 from TeamButtonsController import TeamButtonsController
 
 
@@ -30,13 +30,16 @@ class PlayTeamModeThread(Thread):
             team_buttons_controller,
         )
 
-    def __show_init_message(self):
+    def __show_init_message_bulk(self):
         self.lcd.clear()
         self.lcd.set_cursor(2, 0)
         self.lcd.printout("* HERNI MOD *")
         self.lcd.set_cursor(3, 1)
         self.lcd.printout("Team Pause")
         sleep(1)
+
+    def __show_init_message(self):
+        self.lcd.bulk_modify(self.__show_init_message_bulk)
 
     def __run_team_mode(self):
         self.__show_init_message()

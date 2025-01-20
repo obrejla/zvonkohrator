@@ -96,19 +96,25 @@ def main(lcd: LCD):
     def energy_off():
         print("...no energy :/")
 
-    def show_init_message():
+    def show_init_message_bulk():
         lcd.clear()
         lcd.set_cursor(2, 0)
         lcd.printout("VYBER HERNI")
         lcd.set_cursor(5, 1)
         lcd.printout("MOD...")
 
-    def show_shutdown_message():
+    def show_init_message():
+        lcd.bulk_modify(show_init_message_bulk)
+
+    def show_shutdown_message_bulk():
         lcd.clear()
         lcd.set_cursor(2, 0)
         lcd.printout("Vypinam...")
         sleep(1)
         lcd.clear()
+
+    def show_shutdown_message():
+        lcd.bulk_modify(show_shutdown_message_bulk)
 
     def shutdown():
         show_shutdown_message()

@@ -43,13 +43,16 @@ class PlayFileModeThread(Thread):
             DummyTeamButtonsController(),
         )
 
-    def __show_init_message(self):
+    def __show_init_message_bulk(self):
         self.lcd.clear()
         self.lcd.set_cursor(2, 0)
         self.lcd.printout("* HERNI MOD *")
         self.lcd.set_cursor(2, 1)
         self.lcd.printout("File Player")
         sleep(1)
+
+    def __show_init_message(self):
+        self.lcd.bulk_modify(self.__show_init_message_bulk)
 
     def __run_file_mode(self):
         self.__show_init_message()

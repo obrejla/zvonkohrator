@@ -37,12 +37,15 @@ class MidiListener:
         else:
             time.sleep(0.001)
 
-    def __display_init_message(self):
+    def __display_init_message_bulk(self):
         self.lcd.clear()
         self.lcd.set_cursor(4, 0)
         self.lcd.printout("Klavesy")
         self.lcd.set_cursor(2, 1)
         self.lcd.printout("pripojeny...")
+
+    def __display_init_message(self):
+        self.lcd.bulk_modify(self.__display_init_message_bulk)
 
     def listen(self, run_keyboard_mode: Event):
         self.__display_init_message()
