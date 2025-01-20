@@ -15,14 +15,6 @@ from PlayTeamModeThread import PlayTeamModeThread
 from TeamButtonsControllerImpl import TeamButtonsControllerImpl
 
 
-def show_init_message(lcd: LCD):
-    lcd.clear()
-    lcd.set_cursor(2, 0)
-    lcd.printout("VYBER HERNI")
-    lcd.set_cursor(5, 1)
-    lcd.printout("MOD...")
-
-
 def main(lcd: LCD):
     kill = Event()
     game_mode_leds = LEDBoard(4, 17, 27, 22)
@@ -104,6 +96,13 @@ def main(lcd: LCD):
     def energy_off():
         print("...no energy :/")
 
+    def show_init_message():
+        lcd.clear()
+        lcd.set_cursor(2, 0)
+        lcd.printout("VYBER HERNI")
+        lcd.set_cursor(5, 1)
+        lcd.printout("MOD...")
+
     def show_shutdown_message():
         lcd.clear()
         lcd.set_cursor(2, 0)
@@ -123,7 +122,7 @@ def main(lcd: LCD):
     energy_button.when_released = energy_off
     shutdown_button.when_held = shutdown
 
-    show_init_message(lcd)
+    show_init_message()
 
     def on_sigterm(signum, frame):
         kill.set()
