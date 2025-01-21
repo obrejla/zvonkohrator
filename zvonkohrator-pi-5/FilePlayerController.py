@@ -76,8 +76,8 @@ class FilePlayerController:
 
     def __show_init_display_bulk(self):
         self.lcd.clear()
-        self.__show_stopped()
-        self.__show_current_file()
+        self.__show_stopped_bulk()
+        self.__show_current_file_bulk()
 
     def __show_init_display(self):
         self.lcd.bulk_modify(self.__show_init_display_bulk)
