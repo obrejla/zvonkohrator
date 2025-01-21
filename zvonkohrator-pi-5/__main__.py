@@ -146,6 +146,10 @@ def main():
     energy_button.when_released = energy_off
     shutdown_button.when_held = shutdown
 
+    # handle state when Energy is already provided during the startup
+    if energy_button.is_pressed:
+        energy_on()
+
     show_init_message()
 
     def on_kill(signum, frame):
