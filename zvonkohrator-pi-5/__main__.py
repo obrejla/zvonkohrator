@@ -159,7 +159,7 @@ def main():
 
     team_buttons_controller.clear_leds()
     game_mode_leds.off()
-    lcd.clear()
+    lcd.bulk_modify(lcd.clear)
 
 
 if __name__ == "__main__":

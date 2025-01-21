@@ -56,4 +56,4 @@ class MidiListener:
         while run_keyboard_mode.is_set():
             self.__read_command()
         self.midi.close_port()
-        self.lcd.clear()
+        self.lcd.bulk_modify(self.lcd.clear)
