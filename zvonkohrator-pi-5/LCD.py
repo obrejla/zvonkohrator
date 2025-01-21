@@ -1,4 +1,5 @@
-from threading import Event, RLock
+from queue import Queue
+from threading import Event, RLock, Thread
 
 from LCD1602.LCD1602 import (
     LCD1602,
@@ -12,6 +13,20 @@ class LCD:
         self.lcd_impl: LCD1602 = None
         self.lock = RLock()
         self.in_bulk = Event()
+        self.modifications_queue = Queue()
+        self.display_thread = Thread(
+            target=self.__display_worker, daemon=True, name="LCDDisplayWorker"
+        ).start()
+
+    def __display_worker(self):
+        while True:
+            modification = self.modifications_queue.get()
+            if modification is None:
+                break
+            with self.lock:
+                self.in_bulk.set()
+                modification()
+                self.in_bulk.clear()
 
     def __get_lcd_impl(self):
         if self.lcd_impl is None:  # + check whether the instance can be created?
@@ -44,7 +59,4 @@ class LCD:
                 )
 
     def bulk_modify(self, callback):
-        with self.lock:
-            self.in_bulk.set()
-            callback()
-            self.in_bulk.clear()
+        self.modifications_queue.put(callback)
