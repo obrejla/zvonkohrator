@@ -2,11 +2,6 @@ from threading import RLock
 
 from LCD1602.LCD1602 import (
     LCD1602,
-    LCD_BLINKOFF,
-    LCD_CURSOROFF,
-    LCD_DISPLAYCONTROL,
-    LCD_DISPLAYOFF,
-    LCD_DISPLAYON,
 )
 
 
@@ -37,14 +32,3 @@ class LCD:
     def bulk_modify(self, callback):
         with self.lock:
             callback()
-
-    def display_on(self):
-        with self.lock:
-            self.__get_lcd_impl().command(
-                LCD_DISPLAYCONTROL | LCD_DISPLAYON | LCD_CURSOROFF | LCD_BLINKOFF
-            )
-            self.clear()
-
-    def display_off(self):
-        with self.lock:
-            self.__get_lcd_impl().command(LCD_DISPLAYCONTROL | LCD_DISPLAYOFF)
