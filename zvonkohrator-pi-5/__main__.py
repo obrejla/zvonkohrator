@@ -1,4 +1,4 @@
-from signal import SIGTERM, signal
+from signal import SIGINT, SIGTERM, signal
 from subprocess import check_call
 from threading import Event
 from time import sleep
@@ -15,7 +15,7 @@ from PlayTeamModeThread import PlayTeamModeThread
 from TeamButtonsControllerImpl import TeamButtonsControllerImpl
 
 
-def main(lcd: LCD):
+def main():
     kill = Event()
     game_mode_leds = LEDBoard(4, 17, 27, 22)
     game_mode_leds.off()
@@ -44,6 +44,7 @@ def main(lcd: LCD):
     team_buttons_controller = TeamButtonsControllerImpl(energy_flows)
     player_buttons_controller = PlayerButtonsController(energy_flows)
 
+    lcd = LCD()
     PlayFileModeThread(
         energy_flows,
         run_file_mode,
@@ -147,10 +148,11 @@ def main(lcd: LCD):
 
     show_init_message()
 
-    def on_sigterm(signum, frame):
+    def on_kill(signum, frame):
         kill.set()
 
-    signal(SIGTERM, on_sigterm)
+    signal(SIGTERM, on_kill)
+    signal(SIGINT, on_kill)
 
     while not kill.is_set():
         sleep(1)
@@ -161,9 +163,4 @@ def main(lcd: LCD):
 
 
 if __name__ == "__main__":
-    lcd = LCD()
-
-    try:
-        main(lcd)
-    except KeyboardInterrupt:
-        lcd.clear()
+    main()
