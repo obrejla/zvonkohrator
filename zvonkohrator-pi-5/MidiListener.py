@@ -7,7 +7,10 @@ from MidiCommandHandlers import MidiCommandHandlers
 
 
 class MidiListener:
-    def __init__(self, command_handlers: MidiCommandHandlers, lcd: LCD):
+    def __init__(
+        self, energy_flows: Event, command_handlers: MidiCommandHandlers, lcd: LCD
+    ):
+        self.energy_flows = energy_flows
         self.midi = rtmidi.MidiIn()
         self.command_handlers = command_handlers
         self.lcd = lcd
@@ -31,7 +34,7 @@ class MidiListener:
 
     def __read_command(self):
         msg_and_dt = self.midi.get_message()
-        if msg_and_dt:
+        if msg_and_dt and self.energy_flows.is_set():
             (msg, dt) = msg_and_dt  # dt - delay time is seconds
             self.command_handlers.handle(msg, dt)
         else:

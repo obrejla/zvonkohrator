@@ -13,21 +13,24 @@ class PlayCassetteModeThread(Thread):
 
     def __init__(
         self,
+        energy_flows: Event,
         run_cassette_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
         player_buttons_controller: PlayerButtonsController,
     ):
         super().__init__(daemon=True, name="PlayCassetteModeThread")
+        self.energy_flows = energy_flows
         self.run_cassette_mode = run_cassette_mode
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.player_buttons_controller = player_buttons_controller
         self.cassette_player_controller = CassettePlayerController(
+            self.energy_flows,
             self.lcd,
             self.midi_note_on_handler,
             self.player_buttons_controller,
-            CassetteDetector(),
+            CassetteDetector(self.energy_flows),
         )
 
     def __show_init_message_bulk(self):

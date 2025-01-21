@@ -12,17 +12,19 @@ class PlayKeyboardModeThread(Thread):
 
     def __init__(
         self,
+        energy_flows: Event,
         run_keyboard_mode: Event,
         midi_note_on_handler: MidiNoteOnHandler,
         lcd: LCD,
     ):
         super().__init__(daemon=True, name="PlayKeyboardModeThread")
+        self.energy_flows = energy_flows
         self.run_keyboard_mode = run_keyboard_mode
         self.midi_note_on_handler = midi_note_on_handler
         self.lcd = lcd
         midi_command_handlers = MidiCommandHandlers()
         midi_command_handlers.register(self.midi_note_on_handler)
-        self.midi_listener = MidiListener(midi_command_handlers, lcd)
+        self.midi_listener = MidiListener(self.energy_flows, midi_command_handlers, lcd)
 
     def __show_init_message_bulk(self):
         self.lcd.clear()

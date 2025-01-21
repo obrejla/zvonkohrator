@@ -27,16 +27,19 @@ class PlayFileModeThread(Thread):
 
     def __init__(
         self,
+        energy_flows: Event,
         run_file_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
         player_buttons_controller: PlayerButtonsController,
     ):
         super().__init__(daemon=True, name="PlayFileModeThread")
+        self.energy_flows = energy_flows
         self.run_file_mode = run_file_mode
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.file_player_controller = FilePlayerController(
+            self.energy_flows,
             self.lcd,
             self.midi_note_on_handler,
             player_buttons_controller,

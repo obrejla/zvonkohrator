@@ -17,11 +17,13 @@ class FilePlayerController:
 
     def __init__(
         self,
+        energy_flows: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
         player_buttons_controller: PlayerButtonsController,
         team_buttons_controller: TeamButtonsController,
     ):
+        self.energy_flows = energy_flows
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.player_buttons_controller = player_buttons_controller
@@ -135,12 +137,14 @@ class FilePlayerController:
             print("...which is PLAYING...")
             self.should_interrupt_playing.set()
             self.__clear_teams()
+            self.__show_current_file()
         elif self.is_paused.is_set():
             print("...which is PAUSED...")
             self.__show_stopped()
             self.is_paused.clear()
             self.current_file_start_position = 0
             self.__clear_teams()
+            self.__show_current_file()
         else:
             print("...but is already stopped.")
 
@@ -167,6 +171,7 @@ class FilePlayerController:
 
             self.__show_playing()
             self.__clear_teams()
+            self.__show_current_file()
 
             midi_file = MidiFile(self.__current_file_path())
 
@@ -176,6 +181,7 @@ class FilePlayerController:
                 self.midi_note_on_handler,
                 self.current_file_start_position,
                 self.should_interrupt_playing,
+                self.energy_flows,
             )
 
             if self.should_interrupt_playing.is_set() and self.should_pause.is_set():
@@ -183,6 +189,10 @@ class FilePlayerController:
                 self.current_file_start_position = current_file_position
                 print("...current file PAUSED.")
                 self.is_paused.set()
+            elif not self.energy_flows.is_set():
+                self.current_file_start_position = 0
+                self.__clear_teams()
+                print("...current file STOPPED due to lack of energy!")
             else:
                 self.__show_stopped()
                 self.current_file_start_position = 0
@@ -214,7 +224,6 @@ class FilePlayerController:
     def __clear_teams(self):
         self.team_buttons_controller.clear_leds()
         self.team_press_list.clear()
-        self.__show_current_file()
 
     def __display_teams_bulk(self):
         self.lcd.clear()
@@ -281,5 +290,4 @@ class FilePlayerController:
         self.player_buttons_controller.remove_on_next_pressed(self.__handle_next)
 
         self.team_buttons_controller.remove_on_pressed(self.__handle_team_pressed)
-        self.team_buttons_controller.clear_leds()
-        self.team_press_list.clear()
+        self.__clear_teams()

@@ -13,6 +13,7 @@ class PlayTeamModeThread(Thread):
 
     def __init__(
         self,
+        energy_flows: Event,
         run_team_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
@@ -20,10 +21,12 @@ class PlayTeamModeThread(Thread):
         team_buttons_controller: TeamButtonsController,
     ):
         super().__init__(daemon=True, name="PlayTeamModeThread")
+        self.energy_flows = energy_flows
         self.run_team_mode = run_team_mode
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.file_player_controller = FilePlayerController(
+            self.energy_flows,
             self.lcd,
             self.midi_note_on_handler,
             player_buttons_controller,

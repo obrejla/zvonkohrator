@@ -31,6 +31,7 @@ def play_from_time_position(
     midi_note_on_handler: MidiNoteOnHandler,
     start_time_position: int,
     should_interrupt_playing: Event,
+    energy_flows: Event,
 ):
     extracted_messages = extract_note_on_messages_in_absolute_time(midi_file)
     absolute_times = list(extracted_messages.keys())
@@ -43,7 +44,7 @@ def play_from_time_position(
     for current_time_position in range(start_time_position, num_of_absolute_times):
         current_time = absolute_times[current_time_position]
         for msg in extracted_messages[current_time]:
-            if not should_interrupt_playing.is_set():
+            if energy_flows.is_set() and not should_interrupt_playing.is_set():
                 time.sleep(msg.time)
                 midi_note_on_handler.handle_note_on(msg.note, msg.velocity)
             else:

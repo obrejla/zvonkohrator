@@ -26,6 +26,7 @@ def main(lcd: LCD):
     energy_button = Button(5)
     shutdown_button = Button(14, hold_time=3)
 
+    energy_flows = Event()
     run_file_mode = Event()
     run_keyboard_mode = Event()
     run_team_mode = Event()
@@ -40,18 +41,24 @@ def main(lcd: LCD):
     midi_player = MidiPlayer(usb_port)
     midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
-    team_buttons_controller = TeamButtonsControllerImpl()
-    player_buttons_controller = PlayerButtonsController()
+    team_buttons_controller = TeamButtonsControllerImpl(energy_flows)
+    player_buttons_controller = PlayerButtonsController(energy_flows)
 
     PlayFileModeThread(
-        run_file_mode, lcd, midi_note_on_handler, player_buttons_controller
+        energy_flows,
+        run_file_mode,
+        lcd,
+        midi_note_on_handler,
+        player_buttons_controller,
     ).start()
     PlayKeyboardModeThread(
+        energy_flows,
         run_keyboard_mode,
         midi_note_on_handler,
         lcd,
     ).start()
     PlayTeamModeThread(
+        energy_flows,
         run_team_mode,
         lcd,
         midi_note_on_handler,
@@ -59,41 +66,51 @@ def main(lcd: LCD):
         team_buttons_controller,
     ).start()
     PlayCassetteModeThread(
-        run_cassette_mode, lcd, midi_note_on_handler, player_buttons_controller
+        energy_flows,
+        run_cassette_mode,
+        lcd,
+        midi_note_on_handler,
+        player_buttons_controller,
     ).start()
 
     def switch_to_file_mode():
-        run_keyboard_mode.clear()
-        run_team_mode.clear()
-        run_cassette_mode.clear()
-        run_file_mode.set()
-        game_mode_leds.value = (0, 0, 0, 1)
+        if energy_flows.is_set():
+            run_keyboard_mode.clear()
+            run_team_mode.clear()
+            run_cassette_mode.clear()
+            run_file_mode.set()
+            game_mode_leds.value = (0, 0, 0, 1)
 
     def switch_to_keyboard_mode():
-        run_file_mode.clear()
-        run_team_mode.clear()
-        run_cassette_mode.clear()
-        run_keyboard_mode.set()
-        game_mode_leds.value = (1, 0, 0, 0)
+        if energy_flows.is_set():
+            run_file_mode.clear()
+            run_team_mode.clear()
+            run_cassette_mode.clear()
+            run_keyboard_mode.set()
+            game_mode_leds.value = (1, 0, 0, 0)
 
     def switch_to_team_mode():
-        run_file_mode.clear()
-        run_keyboard_mode.clear()
-        run_cassette_mode.clear()
-        run_team_mode.set()
-        game_mode_leds.value = (0, 0, 1, 0)
+        if energy_flows.is_set():
+            run_file_mode.clear()
+            run_keyboard_mode.clear()
+            run_cassette_mode.clear()
+            run_team_mode.set()
+            game_mode_leds.value = (0, 0, 1, 0)
 
     def switch_to_cassette_mode():
-        run_file_mode.clear()
-        run_keyboard_mode.clear()
-        run_team_mode.clear()
-        run_cassette_mode.set()
-        game_mode_leds.value = (0, 1, 0, 0)
+        if energy_flows.is_set():
+            run_file_mode.clear()
+            run_keyboard_mode.clear()
+            run_team_mode.clear()
+            run_cassette_mode.set()
+            game_mode_leds.value = (0, 1, 0, 0)
 
     def energy_on():
+        energy_flows.set()
         print("Energy flows!")
 
     def energy_off():
+        energy_flows.clear()
         print("...no energy :/")
 
     def show_init_message_bulk():

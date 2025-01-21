@@ -17,11 +17,13 @@ class CassettePlayerController:
 
     def __init__(
         self,
+        energy_flows: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
         player_buttons_controller: PlayerButtonsController,
         cassette_detector: CassetteDetector,
     ):
+        self.energy_flows = energy_flows
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.player_buttons_controller = player_buttons_controller
@@ -184,6 +186,7 @@ class CassettePlayerController:
                 self.midi_note_on_handler,
                 self.current_cassette_file_start_position,
                 self.should_interrupt_playing,
+                self.energy_flows,
             )
 
             if self.should_interrupt_playing.is_set() and self.should_pause.is_set():
@@ -191,6 +194,10 @@ class CassettePlayerController:
                 self.current_cassette_file_start_position = current_file_position
                 print("...current cassette PAUSED.")
                 self.is_paused.set()
+            elif not self.energy_flows.is_set():
+                self.current_cassette_file_index = 0
+                self.current_cassette_file_start_position = 0
+                print("...current cassette STOPPED due to lack of energy!")
             else:
                 self.current_cassette_file_index = 0
                 self.__show_init_display()

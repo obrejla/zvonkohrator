@@ -1,4 +1,4 @@
-from threading import Thread
+from threading import Event, Thread
 
 from bluedot import BlueDot
 from gpiozero import Button
@@ -6,7 +6,8 @@ from utils import throttle
 
 
 class PlayerButtonsController:
-    def __init__(self):
+    def __init__(self, energy_flows: Event):
+        self.energy_flows = energy_flows
         bd = BlueDot(cols=7, rows=1)
         self.prev_button = Button(26)
         self.stop_button = Button(19)
@@ -64,29 +65,45 @@ class PlayerButtonsController:
         self.on_next_pressed_listeners.remove(on_next_listener)
 
     def __handle_prev(self):
-        for prev_listener in self.on_prev_pressed_listeners:
-            Thread(
-                target=prev_listener, daemon=True, name="HandlePrevButtonThread"
-            ).start()
+        print("Someone wants to trigger 'prev' action!")
+        if self.energy_flows.is_set():
+            for prev_listener in self.on_prev_pressed_listeners:
+                Thread(
+                    target=prev_listener, daemon=True, name="HandlePrevButtonThread"
+                ).start()
+        else:
+            print("...but energy does not flow :(")
 
     def __handle_stop(self):
-        for stop_listener in self.on_stop_pressed_listeners:
-            Thread(
-                target=stop_listener, daemon=True, name="HandleStopButtonThread"
-            ).start()
+        print("Someone wants to trigger 'stop' action!")
+        if self.energy_flows.is_set():
+            for stop_listener in self.on_stop_pressed_listeners:
+                Thread(
+                    target=stop_listener, daemon=True, name="HandleStopButtonThread"
+                ).start()
+        else:
+            print("...but energy does not flow :(")
 
     def __handle_play_pause(self):
-        for play_pause_listener in self.on_play_pause_pressed_listeners:
-            Thread(
-                target=play_pause_listener,
-                daemon=True,
-                name="HandlePlayPauseButtonThread",
-            ).start()
+        print("Someone wants to trigger 'play/pause' action!")
+        if self.energy_flows.is_set():
+            for play_pause_listener in self.on_play_pause_pressed_listeners:
+                Thread(
+                    target=play_pause_listener,
+                    daemon=True,
+                    name="HandlePlayPauseButtonThread",
+                ).start()
+        else:
+            print("...but energy does not flow :(")
 
     def __handle_next(self):
-        for next_listener in self.on_next_pressed_listeners:
-            Thread(
-                target=next_listener,
-                daemon=True,
-                name="HandleNextButtonThread",
-            ).start()
+        print("Someone wants to trigger 'next' action!")
+        if self.energy_flows.is_set():
+            for next_listener in self.on_next_pressed_listeners:
+                Thread(
+                    target=next_listener,
+                    daemon=True,
+                    name="HandleNextButtonThread",
+                ).start()
+        else:
+            print("...but energy does not flow :(")
