@@ -18,7 +18,7 @@ from TeamButtonsControllerImpl import TeamButtonsControllerImpl
 
 def main():
     kill = Event()
-    game_mode_leds = LEDBoard(4, 17, 27, 22)
+    game_mode_leds = LEDBoard(4, 17, 27, 22, active_high=False)
     game_mode_leds.off()
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
