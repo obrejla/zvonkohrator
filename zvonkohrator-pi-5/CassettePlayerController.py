@@ -196,6 +196,7 @@ class CassettePlayerController:
                 self.is_paused.set()
             elif not self.energy_flows.is_set():
                 self.current_cassette_file_index = 0
+                self.__show_init_display()
                 self.current_cassette_file_start_position = 0
                 print("...current cassette STOPPED due to lack of energy!")
             else:
