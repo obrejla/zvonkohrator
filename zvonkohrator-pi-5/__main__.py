@@ -1,9 +1,10 @@
+from queue import Empty, Queue
 from signal import SIGINT, SIGTERM, signal
 from subprocess import check_call
 from threading import Event
 from time import sleep
 
-from EnergyController import EnergyController
+from EnergyController import Energy, EnergyController
 from gpiozero import Button, LEDBoard
 from LCD import LCD
 from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
@@ -20,6 +21,7 @@ def main():
     kill = Event()
     game_mode_leds = LEDBoard(4, 17, 27, 22, active_high=False)
     game_mode_leds.off()
+    last_game_mode_leds_queue = Queue()
     play_file_mode_button = Button(9)
     play_keyboard_mode_button = Button(11)
     play_team_mode_button = Button(0)
@@ -131,6 +133,16 @@ def main():
         show_shutdown_message()
         check_call(["sudo", "poweroff"])
 
+    def handle_energy_flow(energy: Energy):
+        if energy == Energy.FLOWS:
+            try:
+                game_mode_leds.value = last_game_mode_leds_queue.get(block=False)
+            except Empty:
+                print("Empty game mode leds queue! Probably initial state...")
+        else:
+            last_game_mode_leds_queue.put(game_mode_leds.value)
+            game_mode_leds.off()
+
     play_file_mode_button.when_pressed = switch_to_file_mode
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
     play_team_mode_button.when_pressed = switch_to_team_mode
@@ -138,6 +150,7 @@ def main():
     shutdown_button.when_held = shutdown
 
     energy_controller.init()
+    energy_controller.add_energy_flow_listener(handle_energy_flow)
     show_init_message()
 
     def on_kill(signum, frame):
