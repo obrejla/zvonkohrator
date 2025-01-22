@@ -190,6 +190,7 @@ class FilePlayerController:
                 print("...current file PAUSED.")
                 self.is_paused.set()
             elif not self.energy_flows.is_set():
+                self.__show_stopped()
                 self.current_file_start_position = 0
                 self.__clear_teams()
                 print("...current file STOPPED due to lack of energy!")
