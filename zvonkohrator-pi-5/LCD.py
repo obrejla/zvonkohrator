@@ -42,8 +42,8 @@ class LCD:
                         self.__get_lcd_impl().setCursor(0, 1)
                         self.__get_lcd_impl().printout(self.current_state[1])
                         self.last_rendered_state[1] = self.current_state[1]
-                else:
-                    sleep(0.1)
+            else:
+                sleep(0.1)
 
     def __current_display_differs(self):
         return (
