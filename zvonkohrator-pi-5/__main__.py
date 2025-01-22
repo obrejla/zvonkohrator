@@ -44,7 +44,7 @@ def main():
     team_buttons_controller = TeamButtonsControllerImpl(energy_flows)
     player_buttons_controller = PlayerButtonsController(energy_flows)
 
-    lcd = LCD()
+    lcd = LCD(energy_flows)
     PlayFileModeThread(
         energy_flows,
         run_file_mode,
@@ -112,6 +112,7 @@ def main():
 
     def energy_off():
         energy_flows.clear()
+        lcd.show_not_enough_energy()
         print("...no energy :/")
 
     def show_init_message_bulk():
@@ -149,6 +150,8 @@ def main():
     # handle state when Energy is already provided during the startup
     if energy_button.is_pressed:
         energy_on()
+    else:
+        energy_off()
 
     show_init_message()
 
@@ -163,6 +166,7 @@ def main():
 
     team_buttons_controller.clear_leds()
     game_mode_leds.off()
+    energy_flows.set()
     lcd.bulk_modify(lcd.clear)
 
 
