@@ -1,11 +1,12 @@
-from threading import Event, Thread
+from threading import Thread
 
+from EnergyController import EnergyController
 from gpiozero import Button
 
 
 class CassetteDetector:
-    def __init__(self, energy_flows: Event):
-        self.energy_flows = energy_flows
+    def __init__(self, energy_controller: EnergyController):
+        self.energy_controller = energy_controller
         self.one_button = Button(15)
         self.two_button = Button(18)
         self.three_button = Button(23)
@@ -61,7 +62,7 @@ class CassetteDetector:
 
     def __set_one(self, value: int):
         print(f"Someone wants to set cassette pin 1 to: {value}")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             self.one = value
             self.__handle_cassette_change()
         else:
@@ -69,7 +70,7 @@ class CassetteDetector:
 
     def __set_two(self, value: int):
         print(f"Someone wants to set cassette pin 2 to: {value}")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             self.two = value
             self.__handle_cassette_change()
         else:
@@ -77,7 +78,7 @@ class CassetteDetector:
 
     def __set_three(self, value: int):
         print(f"Someone wants to set cassette pin 3 to: {value}")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             self.three = value
             self.__handle_cassette_change()
         else:
@@ -85,7 +86,7 @@ class CassetteDetector:
 
     def __set_four(self, value: int):
         print(f"Someone wants to set cassette pin 3 to: {value}")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             self.four = value
             self.__handle_cassette_change()
         else:

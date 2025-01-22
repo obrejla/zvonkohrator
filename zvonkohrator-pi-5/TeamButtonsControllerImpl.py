@@ -1,13 +1,14 @@
-from threading import Event, Thread
+from threading import Thread
 
+from EnergyController import EnergyController
 from gpiozero import LED, Button
 from TeamButtonsController import Team, TeamButtonsController
 from utils import throttle
 
 
 class TeamButtonsControllerImpl(TeamButtonsController):
-    def __init__(self, energy_flows: Event):
-        self.energy_flows = energy_flows
+    def __init__(self, energy_controller: EnergyController):
+        self.energy_controller = energy_controller
         self.red_team_button = Button(21)
         self.red_team_led = LED(1)
         self.green_team_button = Button(20)
@@ -55,7 +56,7 @@ class TeamButtonsControllerImpl(TeamButtonsController):
 
     def __handle_pressed(self, team_id: Team):
         print(f"Team {team_id} wants to pause a player!")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             for listener in self.on_pressed_listeners:
                 Thread(
                     target=lambda: listener(team_id),

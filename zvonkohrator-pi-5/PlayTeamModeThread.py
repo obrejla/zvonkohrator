@@ -1,6 +1,7 @@
 from threading import Event, Lock, Thread
 from time import sleep
 
+from EnergyController import EnergyController
 from FilePlayerController import FilePlayerController
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
@@ -13,7 +14,7 @@ class PlayTeamModeThread(Thread):
 
     def __init__(
         self,
-        energy_flows: Event,
+        energy_controller: EnergyController,
         run_team_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
@@ -21,12 +22,12 @@ class PlayTeamModeThread(Thread):
         team_buttons_controller: TeamButtonsController,
     ):
         super().__init__(daemon=True, name="PlayTeamModeThread")
-        self.energy_flows = energy_flows
+        self.energy_controller = energy_controller
         self.run_team_mode = run_team_mode
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.file_player_controller = FilePlayerController(
-            self.energy_flows,
+            self.energy_controller,
             self.lcd,
             self.midi_note_on_handler,
             player_buttons_controller,

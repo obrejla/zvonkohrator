@@ -1,6 +1,7 @@
 from threading import Event, Lock, Thread
 from time import sleep
 
+from EnergyController import EnergyController
 from LCD import LCD
 from MidiCommandHandlers import MidiCommandHandlers
 from MidiListener import MidiListener
@@ -12,19 +13,21 @@ class PlayKeyboardModeThread(Thread):
 
     def __init__(
         self,
-        energy_flows: Event,
+        energy_controller: EnergyController,
         run_keyboard_mode: Event,
         midi_note_on_handler: MidiNoteOnHandler,
         lcd: LCD,
     ):
         super().__init__(daemon=True, name="PlayKeyboardModeThread")
-        self.energy_flows = energy_flows
+        self.energy_controller = energy_controller
         self.run_keyboard_mode = run_keyboard_mode
         self.midi_note_on_handler = midi_note_on_handler
         self.lcd = lcd
         midi_command_handlers = MidiCommandHandlers()
         midi_command_handlers.register(self.midi_note_on_handler)
-        self.midi_listener = MidiListener(self.energy_flows, midi_command_handlers, lcd)
+        self.midi_listener = MidiListener(
+            self.energy_controller, midi_command_handlers, lcd
+        )
 
     def __show_init_message_bulk(self):
         self.lcd.clear()

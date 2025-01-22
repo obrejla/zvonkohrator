@@ -3,6 +3,7 @@ from subprocess import check_call
 from threading import Event
 from time import sleep
 
+from EnergyController import EnergyController
 from gpiozero import Button, LEDBoard
 from LCD import LCD
 from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
@@ -23,14 +24,14 @@ def main():
     play_keyboard_mode_button = Button(11)
     play_team_mode_button = Button(0)
     play_cassette_mode_button = Button(10)
-    energy_button = Button(5)
     shutdown_button = Button(14, hold_time=3)
 
-    energy_flows = Event()
     run_file_mode = Event()
     run_keyboard_mode = Event()
     run_team_mode = Event()
     run_cassette_mode = Event()
+
+    energy_controller = EnergyController()
 
     # USB hub - domaci
     # usb_port = "/dev/cu.usbmodem1201"
@@ -41,25 +42,25 @@ def main():
     midi_player = MidiPlayer(usb_port)
     midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
-    team_buttons_controller = TeamButtonsControllerImpl(energy_flows)
-    player_buttons_controller = PlayerButtonsController(energy_flows)
+    team_buttons_controller = TeamButtonsControllerImpl(energy_controller)
+    player_buttons_controller = PlayerButtonsController(energy_controller)
 
-    lcd = LCD(energy_flows)
+    lcd = LCD(energy_controller)
     PlayFileModeThread(
-        energy_flows,
+        energy_controller,
         run_file_mode,
         lcd,
         midi_note_on_handler,
         player_buttons_controller,
     ).start()
     PlayKeyboardModeThread(
-        energy_flows,
+        energy_controller,
         run_keyboard_mode,
         midi_note_on_handler,
         lcd,
     ).start()
     PlayTeamModeThread(
-        energy_flows,
+        energy_controller,
         run_team_mode,
         lcd,
         midi_note_on_handler,
@@ -67,7 +68,7 @@ def main():
         team_buttons_controller,
     ).start()
     PlayCassetteModeThread(
-        energy_flows,
+        energy_controller,
         run_cassette_mode,
         lcd,
         midi_note_on_handler,
@@ -75,7 +76,7 @@ def main():
     ).start()
 
     def switch_to_file_mode():
-        if energy_flows.is_set():
+        if energy_controller.is_energy_flowing():
             run_keyboard_mode.clear()
             run_team_mode.clear()
             run_cassette_mode.clear()
@@ -83,7 +84,7 @@ def main():
             game_mode_leds.value = (0, 0, 0, 1)
 
     def switch_to_keyboard_mode():
-        if energy_flows.is_set():
+        if energy_controller.is_energy_flowing():
             run_file_mode.clear()
             run_team_mode.clear()
             run_cassette_mode.clear()
@@ -91,7 +92,7 @@ def main():
             game_mode_leds.value = (1, 0, 0, 0)
 
     def switch_to_team_mode():
-        if energy_flows.is_set():
+        if energy_controller.is_energy_flowing():
             run_file_mode.clear()
             run_keyboard_mode.clear()
             run_cassette_mode.clear()
@@ -99,21 +100,12 @@ def main():
             game_mode_leds.value = (0, 0, 1, 0)
 
     def switch_to_cassette_mode():
-        if energy_flows.is_set():
+        if energy_controller.is_energy_flowing():
             run_file_mode.clear()
             run_keyboard_mode.clear()
             run_team_mode.clear()
             run_cassette_mode.set()
             game_mode_leds.value = (0, 1, 0, 0)
-
-    def energy_on():
-        energy_flows.set()
-        print("Energy flows!")
-
-    def energy_off():
-        energy_flows.clear()
-        lcd.show_not_enough_energy()
-        print("...no energy :/")
 
     def show_init_message_bulk():
         lcd.clear()
@@ -143,16 +135,9 @@ def main():
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
     play_team_mode_button.when_pressed = switch_to_team_mode
     play_cassette_mode_button.when_pressed = switch_to_cassette_mode
-    energy_button.when_pressed = energy_on
-    energy_button.when_released = energy_off
     shutdown_button.when_held = shutdown
 
-    # handle state when Energy is already provided during the startup
-    if energy_button.is_pressed:
-        energy_on()
-    else:
-        energy_off()
-
+    energy_controller.init()
     show_init_message()
 
     def on_kill(signum, frame):
@@ -166,7 +151,7 @@ def main():
 
     team_buttons_controller.clear_leds()
     game_mode_leds.off()
-    energy_flows.set()
+    energy_controller.energy_flows.set()  # just a little bit of hack to enable followup LCD.clear() before terminating
     lcd.bulk_modify(lcd.clear)
 
 

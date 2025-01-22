@@ -2,14 +2,15 @@ from queue import Queue
 from threading import Event, Lock, RLock, Thread
 from time import sleep
 
+from EnergyController import Energy, EnergyController
 from LCD1602.LCD1602 import (
     LCD1602,
 )
 
 
 class LCD:
-    def __init__(self, energy_flows: Event):
-        self.energy_flows = energy_flows
+    def __init__(self, energy_controller: EnergyController):
+        self.energy_controller = energy_controller
         self.cols: int = 16
         self.rows: int = 2
         self.lcd_impl: LCD1602 = None
@@ -24,14 +25,16 @@ class LCD:
         self.display_thread = Thread(
             target=self.__display_worker, daemon=True, name="LCDDisplayWorker"
         ).start()
+        self.energy_controller.add_energy_flow_listener(self.__energy_flow_listener)
 
     def __display_worker(self):
         while True:
             if self.__current_display_differs():
-                self.energy_flows.wait()
+                self.energy_controller.wait_for_energy()
                 if (
-                    self.energy_flows.is_set() and self.__current_display_differs()
-                ):  # energy_flows could have been cleared after the `self.energy_flows.wait()` check and display could be modified as well
+                    self.energy_controller.is_energy_flowing()
+                    and self.__current_display_differs()
+                ):  # energy_flows could have been cleared after the `self.energy_controller.wait_for_energy()` check and display could be modified as well
                     with self.lcd_lock:
                         self.__get_lcd_impl().setCursor(0, 0)
                         self.__get_lcd_impl().printout(self.current_state[0])
@@ -48,10 +51,14 @@ class LCD:
             or self.current_state[1] != self.last_rendered_state[1]
         )
 
-    def show_not_enough_energy(self):
+    def __energy_flow_listener(self, energy: Energy):
+        if energy == Energy.NONE:
+            self.__show_not_enough_energy()
+
+    def __show_not_enough_energy(self):
         with self.lcd_lock:
             if (
-                not self.energy_flows.is_set()
+                not self.energy_controller.is_energy_flowing()
             ):  # it could have been set after the before entering the lock section
                 # directly modify LCD, do not modify current_state - let bulk_modify to change current_state in the meantime
                 self.__get_lcd_impl().setCursor(0, 0)
