@@ -57,8 +57,7 @@ class PlayKeyboardModeThread(Thread):
 
     def run(self):
         while True:
-            sleep(1)
-            if self.run_keyboard_mode.is_set():
+            if self.run_keyboard_mode.wait():
                 print("wanna play keyboard...")
                 acquired = PlayKeyboardModeThread.internal_lock.acquire(blocking=False)
                 if acquired:

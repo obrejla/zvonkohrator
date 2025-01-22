@@ -50,8 +50,7 @@ class PlayCassetteModeThread(Thread):
 
     def run(self):
         while True:
-            sleep(1)
-            if self.run_cassette_mode.is_set():
+            if self.run_cassette_mode.wait():
                 print("wanna play cassette...")
                 acquired = PlayCassetteModeThread.internal_lock.acquire(blocking=False)
                 if acquired:

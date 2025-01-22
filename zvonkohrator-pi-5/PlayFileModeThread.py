@@ -63,8 +63,7 @@ class PlayFileModeThread(Thread):
 
     def run(self):
         while True:
-            sleep(1)
-            if self.run_file_mode.is_set():
+            if self.run_file_mode.wait():
                 print("wanna play file...")
                 acquired = PlayFileModeThread.internal_lock.acquire(blocking=False)
                 if acquired:

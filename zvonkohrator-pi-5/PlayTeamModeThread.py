@@ -50,8 +50,7 @@ class PlayTeamModeThread(Thread):
 
     def run(self):
         while True:
-            sleep(1)
-            if self.run_team_mode.is_set():
+            if self.run_team_mode.wait():
                 print("wanna play team...")
                 acquired = PlayTeamModeThread.internal_lock.acquire(blocking=False)
                 if acquired:
