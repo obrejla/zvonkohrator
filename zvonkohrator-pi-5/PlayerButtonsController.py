@@ -1,13 +1,14 @@
-from threading import Event, Thread
+from threading import Thread
 
 from bluedot import BlueDot
+from EnergyController import EnergyController
 from gpiozero import Button
 from utils import throttle
 
 
 class PlayerButtonsController:
-    def __init__(self, energy_flows: Event):
-        self.energy_flows = energy_flows
+    def __init__(self, energy_controller: EnergyController):
+        self.energy_controller = energy_controller
         bd = BlueDot(cols=7, rows=1)
         self.prev_button = Button(26)
         self.stop_button = Button(19)
@@ -66,7 +67,7 @@ class PlayerButtonsController:
 
     def __handle_prev(self):
         print("Someone wants to trigger 'prev' action!")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             for prev_listener in self.on_prev_pressed_listeners:
                 Thread(
                     target=prev_listener, daemon=True, name="HandlePrevButtonThread"
@@ -76,7 +77,7 @@ class PlayerButtonsController:
 
     def __handle_stop(self):
         print("Someone wants to trigger 'stop' action!")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             for stop_listener in self.on_stop_pressed_listeners:
                 Thread(
                     target=stop_listener, daemon=True, name="HandleStopButtonThread"
@@ -86,7 +87,7 @@ class PlayerButtonsController:
 
     def __handle_play_pause(self):
         print("Someone wants to trigger 'play/pause' action!")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             for play_pause_listener in self.on_play_pause_pressed_listeners:
                 Thread(
                     target=play_pause_listener,
@@ -98,7 +99,7 @@ class PlayerButtonsController:
 
     def __handle_next(self):
         print("Someone wants to trigger 'next' action!")
-        if self.energy_flows.is_set():
+        if self.energy_controller.is_energy_flowing():
             for next_listener in self.on_next_pressed_listeners:
                 Thread(
                     target=next_listener,

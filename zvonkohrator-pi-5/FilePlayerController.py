@@ -2,6 +2,7 @@ from os import listdir, path
 from threading import Event, Lock
 from time import sleep
 
+from EnergyController import Energy, EnergyController
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
 from midiutils import extract_file_name, play_from_time_position
@@ -17,13 +18,13 @@ class FilePlayerController:
 
     def __init__(
         self,
-        energy_flows: Event,
+        energy_controller: EnergyController,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
         player_buttons_controller: PlayerButtonsController,
         team_buttons_controller: TeamButtonsController,
     ):
-        self.energy_flows = energy_flows
+        self.energy_controller = energy_controller
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.player_buttons_controller = player_buttons_controller
@@ -181,7 +182,6 @@ class FilePlayerController:
                 self.midi_note_on_handler,
                 self.current_file_start_position,
                 self.should_interrupt_playing,
-                self.energy_flows,
             )
 
             if self.should_interrupt_playing.is_set() and self.should_pause.is_set():
@@ -189,11 +189,6 @@ class FilePlayerController:
                 self.current_file_start_position = current_file_position
                 print("...current file PAUSED.")
                 self.is_paused.set()
-            elif not self.energy_flows.is_set():
-                self.__show_stopped()
-                self.current_file_start_position = 0
-                self.__clear_teams()
-                print("...current file STOPPED due to lack of energy!")
             else:
                 self.__show_stopped()
                 self.current_file_start_position = 0
@@ -261,6 +256,10 @@ class FilePlayerController:
         else:
             print("...but song is neither playing nor paused.")
 
+    def __handle_energy_flow_change(self, new_energy_state: Energy):
+        if new_energy_state == Energy.NONE:
+            self.__handle_stop()
+
     def run(self, run_mode: Event):
         self.player_buttons_controller.add_on_prev_pressed(self.__handle_prev)
         self.player_buttons_controller.add_on_stop_pressed(self.__handle_stop)
@@ -270,6 +269,10 @@ class FilePlayerController:
         self.player_buttons_controller.add_on_next_pressed(self.__handle_next)
 
         self.team_buttons_controller.add_on_pressed(self.__handle_team_pressed)
+
+        self.energy_controller.add_energy_flow_listener(
+            self.__handle_energy_flow_change
+        )
 
         self.__load_files()
         self.__show_init_display()
@@ -292,3 +295,7 @@ class FilePlayerController:
 
         self.team_buttons_controller.remove_on_pressed(self.__handle_team_pressed)
         self.__clear_teams()
+
+        self.energy_controller.remove_energy_flow_listener(
+            self.__handle_energy_flow_change
+        )
