@@ -4,8 +4,8 @@ After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/bash /home/david/Projects/zvonkohrator/zvonkohrator-start.sh
-WorkingDirectory=/home/david/Projects/zvonkohrator
+ExecStart=/usr/bin/bash {PATH_TO_ZVONKOHRATOR}/zvonkohrator/zvonkohrator-start.sh
+WorkingDirectory={PATH_TO_ZVONKOHRATOR}/zvonkohrator
 Environment=PYTHONUNBUFFERED=1
 
 [Install]

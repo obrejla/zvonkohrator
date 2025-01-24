@@ -5,9 +5,10 @@
 ### As a systemd service (e.g. autorun on startup)
 
 1. as a root copy `zvonkohrator.service-tmp` to `/lib/systemd/system/` with the name `zvonkohrator.service` (i.e. without `-tmp` suffix)
-2. change the access rights of the `zvonkohrator.service` file to `644`, e.g. by using `sudo chmod 644 /lib/systemd/system/zvonkohrator.service`
-3. reload systemd service configurations by `sudo systemctl daemon-reload`
-4. run `zvonkohrator.service` using `sudo systemctl start zvonkohrator.service`
+2. replace `{PATH_TO_ZVONKOHRATOR}` in the `zvonkohrator.service` file by the real path to your local zvonkohrator repository
+3. change the access rights of the `zvonkohrator.service` file to `644`, e.g. by using `sudo chmod 644 /lib/systemd/system/zvonkohrator.service`
+4. reload systemd service configurations by `sudo systemctl daemon-reload`
+5. run `zvonkohrator.service` using `sudo systemctl start zvonkohrator.service`
 
 - On next system startup, service should be started automatically.
 
