@@ -43,8 +43,8 @@ def play_from_time_position(
     for current_time_position in range(start_time_position, num_of_absolute_times):
         current_time = absolute_times[current_time_position]
         for msg in extracted_messages[current_time]:
+            time.sleep(msg.time)
             if not should_interrupt_playing.is_set():
-                time.sleep(msg.time)
                 midi_note_on_handler.handle_note_on(msg.note, msg.velocity)
             else:
                 return current_time_position
