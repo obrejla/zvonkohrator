@@ -50,20 +50,3 @@ def play_from_time_position(
                 return current_time_position
     print(f"Stopped playing: {midi_file.filename}")
     return 0
-
-
-if __name__ == "__main__":
-    midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/skakal-pes.mid")
-    # midi_file = MidiFile("./zvonkohrator-pi-5/midi-files/kdyz-se-ten-talinskej-rybnik.mid")
-
-    class MidiNoteOnPrintHandler(MidiNoteOnHandler):
-        def handle_note_on(self, note, velocity):
-            print(f"{note} - {velocity}")
-
-        def handle(self, msg, dt: int):
-            pass
-
-        def handles(self, cmd):
-            return True
-
-    play_from_time_position(midi_file, MidiNoteOnPrintHandler(), 6)
