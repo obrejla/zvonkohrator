@@ -128,6 +128,7 @@ def main():
 
     def show_shutdown_message():
         lcd.bulk_modify(show_shutdown_message_bulk)
+        sleep(1)
 
     def shutdown():
         show_shutdown_message()
