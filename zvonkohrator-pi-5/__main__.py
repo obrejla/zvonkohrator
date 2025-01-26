@@ -14,6 +14,7 @@ from PlayerButtonsController import PlayerButtonsController
 from PlayFileModeThread import PlayFileModeThread
 from PlayKeyboardModeThread import PlayKeyboardModeThread
 from PlayTeamModeThread import PlayTeamModeThread
+from RemoteController import RemoteController
 from TeamButtonsControllerImpl import TeamButtonsControllerImpl
 
 
@@ -34,6 +35,7 @@ def main():
     run_cassette_mode = Event()
 
     energy_controller = EnergyController()
+    remote_controller = RemoteController()
 
     # USB hub - domaci
     # usb_port = "/dev/cu.usbmodem1201"
@@ -45,7 +47,9 @@ def main():
     midi_note_on_handler = MidiNoteOnHandlerImpl(midi_player)
 
     team_buttons_controller = TeamButtonsControllerImpl(energy_controller)
-    player_buttons_controller = PlayerButtonsController(energy_controller)
+    player_buttons_controller = PlayerButtonsController(
+        energy_controller, remote_controller
+    )
 
     lcd = LCD(energy_controller)
     PlayFileModeThread(

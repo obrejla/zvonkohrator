@@ -1,15 +1,16 @@
 from threading import Thread
 
-from bluedot import BlueDot
 from EnergyController import EnergyController
 from gpiozero import Button
+from RemoteController import RemoteController
 from utils import throttle
 
 
 class PlayerButtonsController:
-    def __init__(self, energy_controller: EnergyController):
+    def __init__(
+        self, energy_controller: EnergyController, remote_controller: RemoteController
+    ):
         self.energy_controller = energy_controller
-        bd = BlueDot(cols=7, rows=1)
         self.prev_button = Button(26)
         self.stop_button = Button(19)
         self.play_pause_button = Button(13)
@@ -24,17 +25,10 @@ class PlayerButtonsController:
         self.stop_button.when_pressed = throttle_stop
         self.play_pause_button.when_pressed = throttle_play_pause
         self.next_button.when_pressed = throttle_next
-        bd[0, 0].when_pressed = throttle_prev
-        bd[0, 0].color = "yellow"
-        bd[1, 0].visible = False
-        bd[2, 0].when_pressed = throttle_stop
-        bd[2, 0].color = "red"
-        bd[3, 0].visible = False
-        bd[4, 0].when_pressed = throttle_play_pause
-        bd[4, 0].color = "green"
-        bd[5, 0].visible = False
-        bd[6, 0].when_pressed = throttle_next
-        bd[6, 0].color = "yellow"
+        remote_controller.prev_buton.when_pressed = throttle_prev
+        remote_controller.stop_button.when_pressed = throttle_stop
+        remote_controller.play_pause_button.when_pressed = throttle_play_pause
+        remote_controller.next_button.when_pressed = throttle_next
 
         self.on_prev_pressed_listeners = []
         self.on_stop_pressed_listeners = []
