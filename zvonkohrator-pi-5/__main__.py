@@ -1,7 +1,7 @@
 from queue import Empty, Queue
 from signal import SIGINT, SIGTERM, signal
 from subprocess import check_call
-from threading import Event
+from threading import Event, Thread
 from time import sleep
 
 from EnergyController import Energy, EnergyController
@@ -16,10 +16,12 @@ from PlayKeyboardModeThread import PlayKeyboardModeThread
 from PlayTeamModeThread import PlayTeamModeThread
 from RemoteController import RemoteController
 from TeamButtonsControllerImpl import TeamButtonsControllerImpl
+from utils import show_loading, throttle
 
 
 def main():
     kill = Event()
+    in_shutdown = Event()
     game_mode_leds = LEDBoard(4, 17, 27, 22, active_high=False)
     game_mode_leds.off()
     last_game_mode_leds_queue = Queue()
@@ -127,16 +129,26 @@ def main():
         lcd.clear()
         lcd.set_cursor(2, 0)
         lcd.printout("Vypinam...")
-        sleep(1)
+        show_loading(lcd, 3, 1, in_shutdown)
         lcd.clear()
 
     def show_shutdown_message():
         lcd.bulk_modify(show_shutdown_message_bulk)
-        sleep(1)
 
     def shutdown():
+        in_shutdown.set()
+        run_file_mode.clear()
+        run_keyboard_mode.clear()
+        run_team_mode.clear()
+        run_cassette_mode.clear()
         show_shutdown_message()
-        check_call(["sudo", "poweroff"])
+        if in_shutdown.is_set():
+            check_call(["sudo", "poweroff"])
+
+    def interrupt_shutdown():
+        if in_shutdown.is_set():
+            in_shutdown.clear()
+            show_init_message()
 
     def handle_energy_flow(energy: Energy):
         if energy == Energy.FLOWS:
@@ -152,7 +164,20 @@ def main():
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
     play_team_mode_button.when_pressed = switch_to_team_mode
     play_cassette_mode_button.when_pressed = switch_to_cassette_mode
-    shutdown_button.when_held = shutdown
+    shutdown_button.when_held = throttle(
+        lambda: Thread(
+            target=shutdown,
+            daemon=True,
+            name="HandleShutdownThread",
+        ).start()
+    )
+    shutdown_button.when_pressed = throttle(
+        lambda: Thread(
+            target=interrupt_shutdown,
+            daemon=True,
+            name="HandleInterruptShutdownThread",
+        ).start()
+    )
 
     energy_controller.init()
     energy_controller.add_energy_flow_listener(handle_energy_flow)
