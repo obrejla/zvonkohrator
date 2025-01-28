@@ -141,6 +141,7 @@ def main():
         run_keyboard_mode.clear()
         run_team_mode.clear()
         run_cassette_mode.clear()
+        game_mode_leds.value = (0, 0, 0, 0)
         show_shutdown_message()
         if in_shutdown.is_set():
             check_call(["sudo", "poweroff"])
