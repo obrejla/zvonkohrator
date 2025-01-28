@@ -40,3 +40,17 @@
 **To see logs from the service**
 
 `journalctl -u zvonkohrator.service -e`
+
+## Sestem related packages
+
+**Search for lib package**
+
+`sudo apt-cache search {LIB_NAME}`
+
+**Packages which had to be installed**
+
+`sudo apt-get install dbus`
+
+`sudo apt-get install libdbus-1-3 libdbus-1-dev`
+
+`sudo apt-get install libglib2.0-dev`
