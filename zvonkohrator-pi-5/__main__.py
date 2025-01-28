@@ -127,8 +127,8 @@ def main():
 
     def show_shutdown_message_bulk():
         lcd.clear()
-        lcd.set_cursor(2, 0)
-        lcd.printout("Vypinam...")
+        lcd.set_cursor(0, 0)
+        lcd.printout("Vypinam! Storno?")
         show_loading(lcd, 3, 1, in_shutdown)
         lcd.clear()
 
