@@ -29,7 +29,7 @@ def main():
     play_keyboard_mode_button = Button(11)
     play_team_mode_button = Button(0)
     play_cassette_mode_button = Button(10)
-    shutdown_button = Button(14, hold_time=3)
+    shutdown_button = Button(14, hold_time=2)
 
     run_file_mode = Event()
     run_keyboard_mode = Event()
