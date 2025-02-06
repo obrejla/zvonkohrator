@@ -116,7 +116,7 @@ class KeyboardPlayerController:
             self.is_recording.clear()
             self.__show_mode_name()
             self.current_record_handler.write_to_file(
-                f"{KeyboardPlayerController.TEAM_RECORDS_DIR_PATH}/{self.modes[self.current_mode_index].lower}.zkht"
+                f"{KeyboardPlayerController.TEAM_RECORDS_DIR_PATH}/{self.modes[self.current_mode_index].lower()}.zkht"
             )
             self.midi_command_handlers.unregister(self.current_record_handler)
         else:
