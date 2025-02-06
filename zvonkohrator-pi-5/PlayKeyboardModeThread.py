@@ -4,8 +4,6 @@ from time import sleep
 from EnergyController import EnergyController
 from KeyboardPlayerController import KeyboardPlayerController
 from LCD import LCD
-from MidiCommandHandlers import MidiCommandHandlers
-from MidiListener import MidiListener
 from MidiNoteOnHandler import MidiNoteOnHandler
 from PlayerButtonsController import PlayerButtonsController
 
@@ -27,16 +25,10 @@ class PlayKeyboardModeThread(Thread):
         self.midi_note_on_handler = midi_note_on_handler
         self.lcd = lcd
         self.player_buttons_controller = player_buttons_controller
-        midi_command_handlers = MidiCommandHandlers()
-        midi_command_handlers.register(self.midi_note_on_handler)
-        self.midi_listener = MidiListener(
-            self.energy_controller, midi_command_handlers, lcd
-        )
         self.keyboard_player_controller = KeyboardPlayerController(
             self.energy_controller,
             self.lcd,
             self.midi_note_on_handler,
-            self.midi_listener,
             self.player_buttons_controller,
         )
 

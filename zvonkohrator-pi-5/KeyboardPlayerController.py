@@ -2,6 +2,7 @@ from threading import Event, Lock
 
 from EnergyController import EnergyController
 from LCD import LCD
+from MidiCommandHandlers import MidiCommandHandlers
 from MidiListener import MidiListener
 from MidiNoteOnHandler import MidiNoteOnHandler
 from PlayerButtonsController import PlayerButtonsController
@@ -14,14 +15,18 @@ class KeyboardPlayerController:
         energy_controller: EnergyController,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
-        midi_listener: MidiListener,
         player_buttons_controller: PlayerButtonsController,
     ):
         self.energy_controller = energy_controller
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
-        self.midi_listener = midi_listener
         self.player_buttons_controller = player_buttons_controller
+
+        midi_command_handlers = MidiCommandHandlers()
+        midi_command_handlers.register(self.midi_note_on_handler)
+        self.midi_listener = MidiListener(
+            self.energy_controller, midi_command_handlers, lcd
+        )
 
         self.modes = ("Pouze hrani...", "Cerveni", "Zeleni", "Modri", "Zluti")
         self.current_mode_index = 0
