@@ -1,6 +1,7 @@
 from threading import Event, Lock
 
 from EnergyController import EnergyController
+from KeyboardRecordNoteOnHandler import KeyboardRecordNoteOnHandler
 from LCD import LCD
 from MidiCommandHandlers import MidiCommandHandlers
 from MidiListener import MidiListener
@@ -10,6 +11,8 @@ from utils import non_blocking_lock
 
 
 class KeyboardPlayerController:
+    TEAM_RECORDS_DIR_PATH = "./zvonkohrator-pi-5/team-records"
+
     def __init__(
         self,
         energy_controller: EnergyController,
@@ -22,10 +25,11 @@ class KeyboardPlayerController:
         self.midi_note_on_handler = midi_note_on_handler
         self.player_buttons_controller = player_buttons_controller
 
-        midi_command_handlers = MidiCommandHandlers()
-        midi_command_handlers.register(self.midi_note_on_handler)
+        self.current_record_handler = None
+        self.midi_command_handlers = MidiCommandHandlers()
+        self.midi_command_handlers.register(self.midi_note_on_handler)
         self.midi_listener = MidiListener(
-            self.energy_controller, midi_command_handlers, lcd
+            self.energy_controller, self.midi_command_handlers, lcd
         )
 
         self.modes = ("Pouze hrani...", "Cerveni", "Zeleni", "Modri", "Zluti")
@@ -109,7 +113,12 @@ class KeyboardPlayerController:
         elif self.is_recording.is_set():
             print("...when RECORDING...")
             self.should_interrupt_recording.set()
+            self.is_recording.clear()
             self.__show_mode_name()
+            self.current_record_handler.write_to_file(
+                f"{KeyboardPlayerController.TEAM_RECORDS_DIR_PATH}/{self.modes[self.current_mode_index].lower}.zkht"
+            )
+            self.midi_command_handlers.unregister(self.current_record_handler)
         else:
             print("...but is already stopped.")
 
@@ -144,6 +153,8 @@ class KeyboardPlayerController:
         ):
             self.is_recording.set()
             self.__show_recording()
+            self.current_record_handler = KeyboardRecordNoteOnHandler()
+            self.midi_command_handlers.register(self.current_record_handler)
         else:
             print(
                 f"...but already playing/recording/or in wrong mode - {self.modes[self.current_mode_index]} (I'm in handle record)"
