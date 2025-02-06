@@ -25,10 +25,13 @@ class KeyboardPlayerController:
 
         self.modes = ("Pouze hrani...", "Cerveni", "Zeleni", "Modri", "Zluti")
         self.current_mode_index = 0
+        self.current_file_start_position = 0
         self.prev_next_lock = Lock()
         self.is_playing = Event()
         self.is_paused = Event()
         self.is_recording = Event()
+        self.should_interrupt_playing = Event()
+        self.should_interrupt_recording = Event()
 
     def __show_no_keyboard_message_bulk(self):
         self.lcd.clear()
@@ -40,17 +43,31 @@ class KeyboardPlayerController:
     def __show_no_keyboard_message(self):
         self.lcd.bulk_modify(self.__show_no_keyboard_message_bulk)
 
+    def __show_mode_name_bulk(self):
+        self.lcd.set_cursor(0, 1)
+        self.lcd.printout(f"{self.modes[self.current_mode_index]}".ljust(16))
+
+    def __show_mode_name(self):
+        self.lcd.bulk_modify(self.__show_mode_name_bulk)
+
     def __show_current_mode_bulk(self):
         self.lcd.clear()
         self.lcd.set_cursor(0, 0)
         self.lcd.printout(
             f"Klavesy:     {self.current_mode_index + 1}/{len(self.modes)}"
         )
-        self.lcd.set_cursor(0, 1)
-        self.lcd.printout(f"{self.modes[self.current_mode_index]}".ljust(16))
+        self.__show_mode_name_bulk()
 
     def __show_current_mode(self):
         self.lcd.bulk_modify(self.__show_current_mode_bulk)
+
+    def __show_recording_bulk(self):
+        self.__show_mode_name_bulk()
+        self.lcd.set_cursor(9, 1)
+        self.lcd.printout("RECING!")
+
+    def __show_recording(self):
+        self.lcd.bulk_modify(self.__show_recording_bulk)
 
     def __handle_prev(self):
         print("Wanna go to prev keyboard mode...")
@@ -75,7 +92,21 @@ class KeyboardPlayerController:
             print("...but already playing/recording (I'm in handle prev)")
 
     def __handle_stop(self):
-        pass
+        print("Wanna STOP!")
+        if self.is_playing.is_set():
+            print("...when PLAYING...")
+            self.should_interrupt_playing.set()
+            self.__show_mode_name()
+        elif self.is_paused.is_set():
+            print("...when PAUSED...")
+            self.is_paused.clear()
+            self.__show_mode_name()
+        elif self.is_recording.is_set():
+            print("...when RECORDING...")
+            self.should_interrupt_recording.set()
+            self.__show_mode_name()
+        else:
+            print("...but is already stopped.")
 
     def __handle_play_pause(self):
         pass
@@ -100,7 +131,18 @@ class KeyboardPlayerController:
             print("...but already playing/recording (I'm in handle next)")
 
     def __handle_record(self):
-        pass
+        print("Wanna record!")
+        if (
+            self.current_mode_index > 0
+            and not self.is_playing.is_set()
+            and not self.is_recording.is_set()
+        ):
+            self.is_recording.set()
+            self.__show_recording()
+        else:
+            print(
+                f"...but already playing/recording/or in wrong mode - {self.modes[self.current_mode_index]} (I'm in handle record)"
+            )
 
     def run(self, run_keyboard_mode: Event):
         if self.midi_listener.connect_midi_device():
