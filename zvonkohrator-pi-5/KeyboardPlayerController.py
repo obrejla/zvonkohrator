@@ -1,7 +1,7 @@
 from threading import Event, Lock
 from time import sleep
 
-from EnergyController import EnergyController
+from EnergyController import Energy, EnergyController
 from KeyboardRecordNoteOnHandler import KeyboardRecordNoteOnHandler
 from LCD import LCD
 from MidiCommandHandlers import MidiCommandHandlers
@@ -240,6 +240,10 @@ class KeyboardPlayerController:
                 f"...but already playing/recording/or in wrong mode - {self.modes[self.current_mode_index]} (I'm in handle record)"
             )
 
+    def __handle_energy_flow_change(self, new_energy_state: Energy):
+        if new_energy_state == Energy.NONE:
+            self.__handle_stop()
+
     def run(self, run_mode: Event):
         if self.midi_listener.connect_midi_device():
             self.player_buttons_controller.add_on_prev_pressed(self.__handle_prev)
@@ -249,6 +253,10 @@ class KeyboardPlayerController:
             )
             self.player_buttons_controller.add_on_next_pressed(self.__handle_next)
             self.player_buttons_controller.add_on_record_pressed(self.__handle_record)
+
+            self.energy_controller.add_energy_flow_listener(
+                self.__handle_energy_flow_change
+            )
 
             self.__show_current_mode()
 
@@ -269,6 +277,10 @@ class KeyboardPlayerController:
             self.player_buttons_controller.remove_on_next_pressed(self.__handle_next)
             self.player_buttons_controller.remove_on_record_pressed(
                 self.__handle_record
+            )
+
+            self.energy_controller.remove_energy_flow_listener(
+                self.__handle_energy_flow_change
             )
         else:
             self.__show_no_keyboard_message()
