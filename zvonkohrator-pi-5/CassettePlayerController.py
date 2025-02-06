@@ -7,7 +7,7 @@ from CassetteDetector import CassetteDetector
 from EnergyController import Energy, EnergyController
 from LCD import LCD
 from MidiNoteOnHandler import MidiNoteOnHandler
-from midiutils import play_from_time_position
+from midiutils import extract_note_on_messages_in_absolute_time, play_from_time_position
 from mido import MidiFile
 from PlayerButtonsController import PlayerButtonsController
 
@@ -182,8 +182,9 @@ class CassettePlayerController:
             midi_file = MidiFile(self.__current_file_path())
 
             print(f"start_position={self.current_cassette_file_start_position}")
+            extracted_messages = extract_note_on_messages_in_absolute_time(midi_file)
             current_file_position = play_from_time_position(
-                midi_file,
+                extracted_messages,
                 self.midi_note_on_handler,
                 self.current_cassette_file_start_position,
                 self.should_interrupt_playing,
