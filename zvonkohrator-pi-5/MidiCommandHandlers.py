@@ -14,3 +14,6 @@ class MidiCommandHandlers:
 
     def register(self, command_handler: MidiCommandHandler):
         self.command_handlers.append(command_handler)
+
+    def unregister(self, command_handler: MidiCommandHandler):
+        self.command_handlers.remove(command_handler)
