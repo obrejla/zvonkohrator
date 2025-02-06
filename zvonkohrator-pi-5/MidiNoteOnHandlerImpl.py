@@ -1,5 +1,6 @@
 from threading import Timer
 
+from MidiCommandHandler import NOTE_ON_BYTE
 from MidiNoteOnHandler import MidiNoteOnHandler
 from MidiPlayer import MidiPlayer
 
@@ -65,8 +66,6 @@ PLAYABLE_TONES = {
     C4: "C4",
 }
 
-NOTE_ON_BYTE = "9"
-NOTE_OFF_BYTE = "8"
 
 # holy grail so the "cink" is the best
 DEFAULT_NOTE_OFF_DELAY = 0.15
