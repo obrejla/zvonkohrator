@@ -41,7 +41,7 @@
 
 `journalctl -u zvonkohrator.service -e`
 
-## Sestem related packages
+## System related packages
 
 **Search for lib package**
 
