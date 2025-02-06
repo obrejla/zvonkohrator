@@ -7,6 +7,7 @@ from LCD import LCD
 from MidiCommandHandlers import MidiCommandHandlers
 from MidiListener import MidiListener
 from MidiNoteOnHandler import MidiNoteOnHandler
+from PlayerButtonsController import PlayerButtonsController
 
 
 class PlayKeyboardModeThread(Thread):
@@ -18,12 +19,14 @@ class PlayKeyboardModeThread(Thread):
         run_keyboard_mode: Event,
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
+        player_buttons_controller: PlayerButtonsController,
     ):
         super().__init__(daemon=True, name="PlayKeyboardModeThread")
         self.energy_controller = energy_controller
         self.run_keyboard_mode = run_keyboard_mode
         self.midi_note_on_handler = midi_note_on_handler
         self.lcd = lcd
+        self.player_buttons_controller = player_buttons_controller
         midi_command_handlers = MidiCommandHandlers()
         midi_command_handlers.register(self.midi_note_on_handler)
         self.midi_listener = MidiListener(
@@ -34,6 +37,7 @@ class PlayKeyboardModeThread(Thread):
             self.lcd,
             self.midi_note_on_handler,
             self.midi_listener,
+            self.player_buttons_controller,
         )
 
     def __show_init_message_bulk(self):
