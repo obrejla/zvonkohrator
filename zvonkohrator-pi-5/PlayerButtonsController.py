@@ -12,7 +12,7 @@ class PlayerButtonsController:
     ):
         self.energy_controller = energy_controller
         self.prev_button = Button(26)
-        self.stop_button = Button(19)
+        self.stop_button = Button(19, hold_time=2)
         self.play_pause_button = Button(13)
         self.next_button = Button(6)
 
@@ -20,11 +20,13 @@ class PlayerButtonsController:
         throttle_stop = throttle(lambda: self.__handle_stop())
         throttle_play_pause = throttle(lambda: self.__handle_play_pause())
         throttle_next = throttle(lambda: self.__handle_next())
+        throttle_record = throttle(lambda: self.__handle_record())
 
         self.prev_button.when_pressed = throttle_prev
         self.stop_button.when_pressed = throttle_stop
         self.play_pause_button.when_pressed = throttle_play_pause
         self.next_button.when_pressed = throttle_next
+        self.stop_button.when_held = throttle_record
         remote_controller.prev_buton.when_pressed = throttle_prev
         remote_controller.stop_button.when_pressed = throttle_stop
         remote_controller.play_pause_button.when_pressed = throttle_play_pause
@@ -34,6 +36,7 @@ class PlayerButtonsController:
         self.on_stop_pressed_listeners = []
         self.on_play_pause_pressed_listeners = []
         self.on_next_pressed_listeners = []
+        self.on_record_pressed_listeners = []
 
     def add_on_prev_pressed(self, on_prev_listener):
         self.on_prev_pressed_listeners.append(on_prev_listener)
@@ -58,6 +61,12 @@ class PlayerButtonsController:
 
     def remove_on_next_pressed(self, on_next_listener):
         self.on_next_pressed_listeners.remove(on_next_listener)
+
+    def add_on_record_pressed(self, on_record_listener):
+        self.on_record_pressed_listeners.append(on_record_listener)
+
+    def remove_on_record_pressed(self, on_record_listener):
+        self.on_record_pressed_listeners.remove(on_record_listener)
 
     def __handle_prev(self):
         print("Someone wants to trigger 'prev' action!")
@@ -99,6 +108,16 @@ class PlayerButtonsController:
                     target=next_listener,
                     daemon=True,
                     name="HandleNextButtonThread",
+                ).start()
+        else:
+            print("...but energy does not flow :(")
+
+    def __handle_record(self):
+        print("Someone wants to trigger 'record' action!")
+        if self.energy_controller.is_energy_flowing():
+            for record_listener in self.on_record_pressed_listeners:
+                Thread(
+                    target=record_listener, daemon=True, name="HandleRecordButtonThread"
                 ).start()
         else:
             print("...but energy does not flow :(")
