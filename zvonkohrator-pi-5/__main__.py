@@ -64,8 +64,8 @@ def main():
     PlayKeyboardModeThread(
         energy_controller,
         run_keyboard_mode,
-        midi_note_on_handler,
         lcd,
+        midi_note_on_handler,
     ).start()
     PlayTeamModeThread(
         energy_controller,

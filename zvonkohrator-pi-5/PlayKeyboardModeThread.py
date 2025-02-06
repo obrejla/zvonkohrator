@@ -15,8 +15,8 @@ class PlayKeyboardModeThread(Thread):
         self,
         energy_controller: EnergyController,
         run_keyboard_mode: Event,
-        midi_note_on_handler: MidiNoteOnHandler,
         lcd: LCD,
+        midi_note_on_handler: MidiNoteOnHandler,
     ):
         super().__init__(daemon=True, name="PlayKeyboardModeThread")
         self.energy_controller = energy_controller
