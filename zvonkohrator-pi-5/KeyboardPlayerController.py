@@ -32,8 +32,31 @@ class KeyboardPlayerController:
     def __show_no_keyboard_message(self):
         self.lcd.bulk_modify(self.__show_no_keyboard_message_bulk)
 
+    def __handle_prev(self):
+        pass
+
+    def __handle_stop(self):
+        pass
+
+    def __handle_play_pause(self):
+        pass
+
+    def __handle_next(self):
+        pass
+
+    def __handle_record(self):
+        pass
+
     def run(self, run_keyboard_mode: Event):
         if self.midi_listener.connect_midi_device():
+            self.player_buttons_controller.add_on_prev_pressed(self.__handle_prev)
+            self.player_buttons_controller.add_on_stop_pressed(self.__handle_stop)
+            self.player_buttons_controller.add_on_play_pause_pressed(
+                self.__handle_play_pause
+            )
+            self.player_buttons_controller.add_on_next_pressed(self.__handle_next)
+            self.player_buttons_controller.add_on_record_pressed(self.__handle_record)
+
             self.midi_listener.listen(run_keyboard_mode)
         else:
             self.__show_no_keyboard_message()
