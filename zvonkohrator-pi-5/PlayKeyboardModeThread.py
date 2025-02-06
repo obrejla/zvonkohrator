@@ -2,6 +2,7 @@ from threading import Event, Lock, Thread
 from time import sleep
 
 from EnergyController import EnergyController
+from KeyboardPlayerController import KeyboardPlayerController
 from LCD import LCD
 from MidiCommandHandlers import MidiCommandHandlers
 from MidiListener import MidiListener
@@ -28,6 +29,12 @@ class PlayKeyboardModeThread(Thread):
         self.midi_listener = MidiListener(
             self.energy_controller, midi_command_handlers, lcd
         )
+        self.keyboard_player_controller = KeyboardPlayerController(
+            self.energy_controller,
+            self.lcd,
+            self.midi_note_on_handler,
+            self.midi_listener,
+        )
 
     def __show_init_message_bulk(self):
         self.lcd.clear()
@@ -40,23 +47,9 @@ class PlayKeyboardModeThread(Thread):
     def __show_init_message(self):
         self.lcd.bulk_modify(self.__show_init_message_bulk)
 
-    def __show_no_keyboard_message_bulk(self):
-        self.lcd.clear()
-        self.lcd.set_cursor(1, 0)
-        self.lcd.printout("CHYBA: KLAVESY")
-        self.lcd.set_cursor(3, 1)
-        self.lcd.printout("NENALEZENY")
-
-    def __show_no_keyboard_message(self):
-        self.lcd.bulk_modify(self.__show_no_keyboard_message_bulk)
-
     def __run_keyboard_mode(self):
         self.__show_init_message()
-        if self.midi_listener.connect_midi_device():
-            self.midi_listener.listen(self.run_keyboard_mode)
-        else:
-            self.__show_no_keyboard_message()
-            self.run_keyboard_mode.clear()
+        self.keyboard_player_controller.run(self.run_keyboard_mode)
 
     def run(self):
         while True:
