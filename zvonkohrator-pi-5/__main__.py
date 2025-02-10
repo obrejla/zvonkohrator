@@ -118,10 +118,10 @@ def main():
 
     def show_init_message_bulk():
         lcd.clear()
-        lcd.set_cursor(2, 0)
-        lcd.printout("VYBER HERNI")
-        lcd.set_cursor(5, 1)
-        lcd.printout("MOD...")
+        lcd.set_cursor(0, 0)
+        lcd.printout("  ZVONKOHRATOR  ")
+        lcd.set_cursor(0, 1)
+        lcd.printout("Vyber herni mod!")
 
     def show_init_message():
         lcd.bulk_modify(show_init_message_bulk)
