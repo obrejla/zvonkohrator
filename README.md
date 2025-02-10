@@ -59,9 +59,17 @@
 
 ### Keyboard
 
-In this mode, **ZVONKOHRATOR** works with the attached MIDI keyboard and just plays the pressed tones.
+In this mode, **ZVONKOHRATOR** works with the attached MIDI keyboard and allows the user to play pressed tones. There is also a possibility to record a tone sequence for each of 4 teams.
 
 When the mode is activated, MIDI keyboard must be attached, otherwise the error is shown on the LCD. Then when the MIDI keyboard is attached, mode must be activated by its button again.
+
+This mode has 5 *sub modes*. Currently selected *sub mode* is indicated by numbers in the top right corner of the LCD, like `1/5`.
+
+When the mode is started, then first *sub mode* is just a *play tones* mode. User can press MIDI keyboard keys and proper tones are direcly played by **ZVONKOHRATOR**.
+
+When a team wants to record their tone sequence (like if they have some sort of simple *team anthem*), they can use **PREV** or **NEXT** buttons of the player controller to move to sub mode of their team (indicated by the team name in the bottom left corner of the LCD). Once they are there, they can record their tone sequence. Recording is triggered by *pressing-and-holding* **STOP** button. When recording starts, the text `RECING!` is displayed on the LCD. Now the team can *play* their tones. Once they are done, they just simply press **STOP** button and their sequence is stored directly to the device. They can play it just by pressing **PLAY/PAUSE** button when their *team sub mode* is selected.
+
+When the recording is started and stopped without any tone pressed, the recorded tone sequence is deleted.
 
 ### Cassette
 
