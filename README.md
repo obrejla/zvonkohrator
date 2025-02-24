@@ -118,3 +118,22 @@ Entire **ZVONKOHRATOR** works only in case when the *energy is flowing*. It is i
 There is a shutdown button to gracefully shut down raspi before the energy is turned off. Button must be pressed for few seconds, the it is displayed on the LCD that shutdown is in progress - with a loading bar.
 
 When the loading bar is in progress, another press of the shutdown button cancels the shutdown process and sets **ZVONKOHRATOR** to its initial state.
+
+### Remote control
+
+It is posible to control *player* (i.e. Prev, Stop, Play/Pause and Next buttons) remotely via bluetooth - using **Android** phone with installed [Blue Dot](https://play.google.com/store/apps/details?id=com.stuffaboutcode.bluedot) app. There is also available [documentaion for the Blue Dot](https://bluedot.readthedocs.io/en/latest/pairpiandroid.html) itself.
+
+You need to pair the phone with the Raspberry, so:
+1. log in to Raspberry,
+2. in the top right corner click on Bluetooth icon,
+3. and click *Make Discoverable*
+4. Then on the phone try to find the Raspberry device and proceed with pairing.
+5. Once the device is paired, you can run **Blue Dot** app on your phone and you should see the Raspberry device in the list.
+6. Tap on the device and it shoud *connect*.
+7. Then 4 color circles should appear on the Phone screen (without any labels).
+
+- There should be *2 yellow* circles - the one on the left should be for **PREV** action and the one on the right should be for **NEXT** action.
+- There should be one *red* circle - it should trigger **STOP** action.
+- And the last one is *green* circle - it should trigger **PLAY/PAUSE** action.
+
+Remote controls can be used whenever common *player* buttons can be used.
