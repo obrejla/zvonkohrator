@@ -143,11 +143,13 @@ def main():
         run_team_mode.clear()
         run_cassette_mode.clear()
         game_mode_leds.value = (0, 0, 0, 0)
+        energy_controller.start_bypass()
         show_shutdown_message()
         if in_shutdown.is_set():
             check_call(["sudo", "poweroff"])
 
     def interrupt_shutdown():
+        energy_controller.stop_bypass()
         if in_shutdown.is_set():
             in_shutdown.clear()
             show_init_message()

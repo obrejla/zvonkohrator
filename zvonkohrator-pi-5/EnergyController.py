@@ -48,3 +48,12 @@ class EnergyController:
 
     def wait_for_energy(self):
         return self.energy_flows.wait()
+
+    def start_bypass(self):
+        self.energy_flows.set()
+
+    def stop_bypass(self):
+        if self.energy_button.is_pressed:
+            self.__energy_on()
+        else:
+            self.__energy_off()
