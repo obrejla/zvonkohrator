@@ -137,3 +137,7 @@ You need to pair the phone with the Raspberry, so:
 - And the last one is *green* circle - it should trigger **PLAY/PAUSE** action.
 
 Remote controls can be used whenever common *player* buttons can be used.
+
+## License
+
+[MIT](LICENSE.txt)
