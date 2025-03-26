@@ -18,6 +18,11 @@
 2. run `source ./venv/bin/activate` to activate python virtual environment
 3. run `python ./zvonkohrator_pi_5/__main__.py`
 
+### Tests
+
+Just run `pytest` command in the root directory.
+
+Tests are also automatically triggered when creating Pull Request on GitHub.
 
 ## Useful commands
 
