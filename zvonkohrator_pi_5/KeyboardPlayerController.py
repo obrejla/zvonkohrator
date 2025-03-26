@@ -1,18 +1,18 @@
 from threading import Event, Lock
 from time import sleep
 
-from EnergyController import Energy, EnergyController
-from KeyboardRecordNoteOnHandler import KeyboardRecordNoteOnHandler
-from LCD import LCD
-from MidiCommandHandlers import MidiCommandHandlers
-from MidiListener import MidiListener
-from MidiNoteOnHandler import MidiNoteOnHandler
-from midiutils import (
+from zvonkohrator_pi_5.EnergyController import Energy, EnergyController
+from zvonkohrator_pi_5.KeyboardRecordNoteOnHandler import KeyboardRecordNoteOnHandler
+from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.MidiCommandHandlers import MidiCommandHandlers
+from zvonkohrator_pi_5.MidiListener import MidiListener
+from zvonkohrator_pi_5.MidiNoteOnHandler import MidiNoteOnHandler
+from zvonkohrator_pi_5.midiutils import (
     convert_recorded_messages_to_absolute_time,
     play_from_time_position,
 )
-from PlayerButtonsController import PlayerButtonsController
-from utils import non_blocking_lock
+from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
+from zvonkohrator_pi_5.utils import non_blocking_lock
 
 
 class KeyboardPlayerController:

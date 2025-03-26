@@ -2,14 +2,19 @@ from os import listdir, path
 from threading import Event, Lock
 from time import sleep
 
-from EnergyController import Energy, EnergyController
-from LCD import LCD
-from MidiNoteOnHandler import MidiNoteOnHandler
-from midiutils import extract_file_name, extract_note_on_messages_in_absolute_time, play_from_time_position
 from mido import MidiFile
-from PlayerButtonsController import PlayerButtonsController
-from TeamButtonsController import Team, TeamButtonsController
-from utils import non_blocking_lock
+
+from zvonkohrator_pi_5.EnergyController import Energy, EnergyController
+from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.MidiNoteOnHandler import MidiNoteOnHandler
+from zvonkohrator_pi_5.midiutils import (
+    extract_file_name,
+    extract_note_on_messages_in_absolute_time,
+    play_from_time_position,
+)
+from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
+from zvonkohrator_pi_5.TeamButtonsController import Team, TeamButtonsController
+from zvonkohrator_pi_5.utils import non_blocking_lock
 
 
 class FilePlayerController:

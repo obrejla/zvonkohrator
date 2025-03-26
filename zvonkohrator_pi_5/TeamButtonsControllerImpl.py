@@ -1,9 +1,10 @@
 from threading import Thread
 
-from EnergyController import EnergyController
 from gpiozero import LED, Button
-from TeamButtonsController import Team, TeamButtonsController
-from utils import throttle
+
+from zvonkohrator_pi_5.EnergyController import EnergyController
+from zvonkohrator_pi_5.TeamButtonsController import Team, TeamButtonsController
+from zvonkohrator_pi_5.utils import throttle
 
 
 class TeamButtonsControllerImpl(TeamButtonsController):

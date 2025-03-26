@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from threading import Event, Lock
 from time import sleep, time
 
-from LCD import LCD
+from zvonkohrator_pi_5.LCD import LCD
 
 
 @contextmanager

@@ -1,11 +1,11 @@
 from threading import Event, Lock, Thread
 from time import sleep
 
-from EnergyController import EnergyController
-from KeyboardPlayerController import KeyboardPlayerController
-from LCD import LCD
-from MidiNoteOnHandler import MidiNoteOnHandler
-from PlayerButtonsController import PlayerButtonsController
+from zvonkohrator_pi_5.EnergyController import EnergyController
+from zvonkohrator_pi_5.KeyboardPlayerController import KeyboardPlayerController
+from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.MidiNoteOnHandler import MidiNoteOnHandler
+from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
 
 
 class PlayKeyboardModeThread(Thread):

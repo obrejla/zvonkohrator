@@ -1,7 +1,8 @@
 from threading import Thread
 
-from EnergyController import EnergyController
 from gpiozero import Button
+
+from zvonkohrator_pi_5.EnergyController import EnergyController
 
 
 class CassetteDetector:

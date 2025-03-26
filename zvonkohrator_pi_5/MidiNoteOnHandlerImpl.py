@@ -1,8 +1,8 @@
 from threading import Timer
 
-from MidiCommandHandler import NOTE_ON_BYTE
-from MidiNoteOnHandler import MidiNoteOnHandler
-from MidiPlayer import MidiPlayer
+from zvonkohrator_pi_5.MidiCommandHandler import NOTE_ON_BYTE
+from zvonkohrator_pi_5.MidiNoteOnHandler import MidiNoteOnHandler
+from zvonkohrator_pi_5.MidiPlayer import MidiPlayer
 
 # _X __ __ channel
 # 9_ __ __ note on
