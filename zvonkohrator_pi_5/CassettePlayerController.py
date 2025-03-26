@@ -13,7 +13,7 @@ from PlayerButtonsController import PlayerButtonsController
 
 
 class CassettePlayerController:
-    LOCAL_DIR_PATH = "./zvonkohrator-pi-5/cassette-files"
+    LOCAL_DIR_PATH = "./zvonkohrator_pi_5/cassette-files"
     FILE_CASSETTE_NUMBER_PATTERN = re.compile(r"^(\d{1,2})-.*")
 
     def __init__(

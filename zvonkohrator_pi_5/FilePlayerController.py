@@ -13,7 +13,7 @@ from utils import non_blocking_lock
 
 
 class FilePlayerController:
-    LOCAL_DIR_PATH = "./zvonkohrator-pi-5/midi-files"
+    LOCAL_DIR_PATH = "./zvonkohrator_pi_5/midi-files"
     MEDIA_DIR_PATH = "/media/david"
 
     def __init__(

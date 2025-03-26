@@ -16,7 +16,7 @@ from utils import non_blocking_lock
 
 
 class KeyboardPlayerController:
-    TEAM_RECORDS_DIR_PATH = "./zvonkohrator-pi-5/team-records"
+    TEAM_RECORDS_DIR_PATH = "./zvonkohrator_pi_5/team-records"
 
     def __init__(
         self,

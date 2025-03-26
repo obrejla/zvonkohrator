@@ -16,7 +16,7 @@
 
 1. go to zvonkohrator project directory
 2. run `source ./venv/bin/activate` to activate python virtual environment
-3. run `python ./zvonkohrator-pi-5/__main__.py`
+3. run `python ./zvonkohrator_pi_5/__main__.py`
 
 
 ## Useful commands
