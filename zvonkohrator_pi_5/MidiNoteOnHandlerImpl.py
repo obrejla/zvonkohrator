@@ -10,31 +10,31 @@ from MidiPlayer import MidiPlayer
 # __ 0X __ note number
 # __ __ 0X velocity
 
-C2 = 36
-Cis2 = 37
-D2 = 38
-Dis2 = 39
-E2 = 40
-F2 = 41
-Fis2 = 42
-G2 = 43
-Gis2 = 44
-A2 = 45
-B2 = 46
-H2 = 47
-C3 = 48
-Cis3 = 49
-D3 = 50
-Dis3 = 51
-E3 = 52
-F3 = 53
-Fis3 = 54
-G3 = 55
-Gis3 = 56
-A3 = 57
-B3 = 58
-H3 = 59
-C4 = 60
+C2 = 48
+Cis2 = 49
+D2 = 50
+Dis2 = 51
+E2 = 52
+F2 = 53
+Fis2 = 54
+G2 = 55
+Gis2 = 56
+A2 = 57
+B2 = 58
+H2 = 59
+C3 = 60
+Cis3 = 61
+D3 = 62
+Dis3 = 63
+E3 = 64
+F3 = 65
+Fis3 = 66
+G3 = 67
+Gis3 = 68
+A3 = 69
+B3 = 70
+H3 = 71
+C4 = 72
 
 OCTAVE = 12
 
