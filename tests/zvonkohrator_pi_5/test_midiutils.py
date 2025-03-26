@@ -2,6 +2,8 @@ import pytest
 from mido import Message, MetaMessage
 
 from zvonkohrator_pi_5.midiutils import (
+    Msg,
+    convert_recorded_messages_to_absolute_time,
     extract_file_name,
     extract_note_on_messages_in_absolute_time,
 )
@@ -89,3 +91,60 @@ def test_ignores_meta_messages():
 )
 def test_extract_file_name(file_path, expected):
     assert extract_file_name(file_path) == expected
+
+
+def test_msg_parsing():
+    msg = Msg("12.5:64:100")
+    assert msg.time == 12.5
+    assert msg.note == 64
+    assert msg.velocity == 100
+
+
+def test_convert_recorded_messages_to_absolute_time_single_line(tmp_path):
+    file_content = "10:64:100\n"
+    file_path = tmp_path / "recording.txt"
+    file_path.write_text(file_content)
+
+    result = convert_recorded_messages_to_absolute_time(str(file_path))
+
+    assert list(result.keys()) == [10.0]
+    msg = result[10.0][0]
+    assert msg.time == 10.0
+    assert msg.note == 64
+    assert msg.velocity == 100
+
+
+def test_convert_recorded_messages_to_absolute_time_multiple_lines(tmp_path):
+    file_content = "10:60:100\n5:62:110\n3:64:120\n"
+    file_path = tmp_path / "recording.txt"
+    file_path.write_text(file_content)
+
+    result = convert_recorded_messages_to_absolute_time(str(file_path))
+
+    expected_times = [10.0, 15.0, 18.0]
+    assert list(result.keys()) == expected_times
+
+    # Check msg.time values (relative to previous note)
+    assert result[10.0][0].time == 10.0
+    assert result[15.0][0].time == 5.0
+    assert result[18.0][0].time == 3.0
+
+    assert result[10.0][0].note == 60
+    assert result[15.0][0].note == 62
+    assert result[18.0][0].note == 64
+
+
+def test_convert_recorded_messages_to_absolute_time_duplicate_timestamps(tmp_path):
+    file_content = "5:60:100\n5:61:100\n"
+    file_path = tmp_path / "recording.txt"
+    file_path.write_text(file_content)
+
+    result = convert_recorded_messages_to_absolute_time(str(file_path))
+
+    # First message at time 5.0
+    # Second message at time 10.0 (5 + 5)
+    assert 5.0 in result
+    assert 10.0 in result
+
+    assert result[5.0][0].note == 60
+    assert result[10.0][0].note == 61
