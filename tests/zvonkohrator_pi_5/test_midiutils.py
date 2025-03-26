@@ -1,3 +1,6 @@
+from threading import Event
+from unittest.mock import MagicMock, patch
+
 import pytest
 from mido import Message, MetaMessage
 
@@ -6,6 +9,7 @@ from zvonkohrator_pi_5.midiutils import (
     convert_recorded_messages_to_absolute_time,
     extract_file_name,
     extract_note_on_messages_in_absolute_time,
+    play_from_time_position,
 )
 
 
@@ -148,3 +152,100 @@ def test_convert_recorded_messages_to_absolute_time_duplicate_timestamps(tmp_pat
 
     assert result[5.0][0].note == 60
     assert result[10.0][0].note == 61
+
+
+@pytest.fixture
+def extracted_messages():
+    return {
+        0.0: [Msg("0:60:100")],
+        1.0: [Msg("1:61:100")],
+        3.0: [Msg("2:62:100")],
+    }
+
+
+def test_play_from_time_position_plays_correctly(extracted_messages):
+    note_on_handler = MagicMock()
+    interrupt_event = Event()
+    start_position = 0
+
+    with patch("time.sleep") as mock_sleep:
+        play_from_time_position(
+            extracted_messages, note_on_handler, start_position, interrupt_event
+        )
+
+    assert note_on_handler.handle_note_on.call_count == 3
+    note_on_handler.handle_note_on.assert_any_call(60, 100)
+    note_on_handler.handle_note_on.assert_any_call(61, 100)
+    note_on_handler.handle_note_on.assert_any_call(62, 100)
+
+    # Ensure time.sleep was called with correct, relative, values
+    mock_sleep.assert_any_call(0.0)
+    mock_sleep.assert_any_call(1.0)
+    mock_sleep.assert_any_call(2.0)
+
+
+def test_play_from_time_position_stops_on_interrupt_before_first_note_handling(
+    extracted_messages,
+):
+    note_on_handler = MagicMock()
+    interrupt_event = Event()
+    start_position = 0
+    interrupt_event.set()  # Simulates interruption
+
+    with patch("time.sleep"):
+        position = play_from_time_position(
+            extracted_messages, note_on_handler, start_position, interrupt_event
+        )
+
+    # No messages should be handled
+    note_on_handler.handle_note_on.assert_not_called()
+    assert position == 0  # stopped at the first index
+
+
+def test_play_from_time_position_partial_play_then_interrupt(extracted_messages):
+    note_on_handler = MagicMock()
+    interrupt_event = Event()
+    start_position = 0
+    calls = {"count": 0}
+
+    def interrupt_after_second_call(*args, **kwargs):
+        calls["count"] += 1
+        if calls["count"] == 2:
+            interrupt_event.set()
+
+    with patch("time.sleep", side_effect=interrupt_after_second_call):
+        position = play_from_time_position(
+            extracted_messages, note_on_handler, start_position, interrupt_event
+        )
+
+    # First break after second sleep, before second note_on_handler call
+    assert note_on_handler.handle_note_on.call_count == 1
+    assert position == 1  # interrupted during processing second message
+
+
+def test_play_from_time_position_with_nonzero_start_position(extracted_messages):
+    note_on_handler = MagicMock()
+    interrupt_event = Event()
+    start_position = 1
+
+    with patch("time.sleep"):
+        play_from_time_position(
+            extracted_messages, note_on_handler, start_position, interrupt_event
+        )
+
+    assert note_on_handler.handle_note_on.call_count == 2
+    note_on_handler.handle_note_on.assert_any_call(61, 100)
+    note_on_handler.handle_note_on.assert_any_call(62, 100)
+
+
+@pytest.mark.parametrize("start_position", [-1, 3, 100])
+def test_play_from_time_position_invalid_position(extracted_messages, start_position):
+    note_on_handler = MagicMock()
+    interrupt_event = Event()
+
+    with pytest.raises(ValueError) as exc:
+        play_from_time_position(
+            extracted_messages, note_on_handler, start_position, interrupt_event
+        )
+
+    assert "out of bounds" in str(exc.value)
