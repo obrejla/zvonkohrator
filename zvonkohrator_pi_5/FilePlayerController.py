@@ -13,7 +13,6 @@ from zvonkohrator_pi_5.midiutils import (
     play_from_time_position,
 )
 from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
-from zvonkohrator_pi_5.TeamButtonsController import Team, TeamButtonsController
 from zvonkohrator_pi_5.utils import non_blocking_lock
 
 
@@ -27,15 +26,11 @@ class FilePlayerController:
         lcd: LCD,
         midi_note_on_handler: MidiNoteOnHandler,
         player_buttons_controller: PlayerButtonsController,
-        team_buttons_controller: TeamButtonsController,
     ):
         self.energy_controller = energy_controller
         self.lcd = lcd
         self.midi_note_on_handler = midi_note_on_handler
         self.player_buttons_controller = player_buttons_controller
-        self.team_buttons_controller = team_buttons_controller
-        self.team_press_lock = Lock()
-        self.team_press_list = []
         self.is_playing = Event()
         self.is_paused = Event()
         self.prev_next_lock = Lock()
@@ -142,25 +137,23 @@ class FilePlayerController:
         if self.is_playing.is_set():
             print("...which is PLAYING...")
             self.should_interrupt_playing.set()
-            self.__clear_teams()
             self.__show_current_file()
         elif self.is_paused.is_set():
             print("...which is PAUSED...")
             self.__show_stopped()
             self.is_paused.clear()
             self.current_file_start_position = 0
-            self.__clear_teams()
             self.__show_current_file()
         else:
             print("...but is already stopped.")
 
     def __handle_play_pause(self):
         if self.is_playing.is_set():
-            self.__handle_pause()
+            self.handle_pause()
         else:
             self.__handle_play()
 
-    def __handle_pause(self):
+    def handle_pause(self):
         print("Wanna PAUSE the song...")
         if self.is_playing.is_set():
             self.should_pause.set()
@@ -176,7 +169,6 @@ class FilePlayerController:
             self.should_interrupt_playing.clear()
 
             self.__show_playing()
-            self.__clear_teams()
             self.__show_current_file()
 
             midi_file = MidiFile(self.__current_file_path())
@@ -223,45 +215,6 @@ class FilePlayerController:
         else:
             print("...but already playing (I'm in handle next)")
 
-    def __clear_teams(self):
-        self.team_buttons_controller.clear_leds()
-        self.team_press_list.clear()
-
-    def __display_teams_bulk(self):
-        self.lcd.clear()
-        self.lcd.set_cursor(0, 0)
-        self.lcd.printout(f"PAUSED!     1:{self.team_press_list[0].value}")
-        if len(self.team_press_list) > 1:
-            self.lcd.set_cursor(0, 1)
-            self.lcd.printout(f"2:{self.team_press_list[1].value}".ljust(16))
-        if len(self.team_press_list) > 2:
-            self.lcd.set_cursor(6, 1)
-            self.lcd.printout(f"3:{self.team_press_list[2].value}".ljust(10))
-        if len(self.team_press_list) > 3:
-            self.lcd.set_cursor(12, 1)
-            self.lcd.printout(f"4:{self.team_press_list[3].value}")
-
-    def __display_teams(self):
-        self.lcd.bulk_modify(self.__display_teams_bulk)
-
-    def __handle_team_pressed(self, team_id: Team):
-        print(f"Wanna handle team button press ({team_id})...")
-        if self.is_playing.is_set() or self.is_paused.is_set():
-            self.__handle_pause()
-            self.team_press_lock.acquire()
-            try:
-                if (
-                    team_id not in self.team_press_list
-                    and len(self.team_press_list) < 4
-                ):
-                    self.team_press_list.append(team_id)
-                    self.team_buttons_controller.turn_led_on(team_id)
-                    self.__display_teams()
-            finally:
-                self.team_press_lock.release()
-        else:
-            print("...but song is neither playing nor paused.")
-
     def __handle_energy_flow_change(self, new_energy_state: Energy):
         if new_energy_state == Energy.NONE:
             self.__handle_stop()
@@ -273,8 +226,6 @@ class FilePlayerController:
             self.__handle_play_pause
         )
         self.player_buttons_controller.add_on_next_pressed(self.__handle_next)
-
-        self.team_buttons_controller.add_on_pressed(self.__handle_team_pressed)
 
         self.energy_controller.add_energy_flow_listener(
             self.__handle_energy_flow_change
@@ -298,9 +249,6 @@ class FilePlayerController:
             self.__handle_play_pause
         )
         self.player_buttons_controller.remove_on_next_pressed(self.__handle_next)
-
-        self.team_buttons_controller.remove_on_pressed(self.__handle_team_pressed)
-        self.__clear_teams()
 
         self.energy_controller.remove_energy_flow_listener(
             self.__handle_energy_flow_change
