@@ -4,19 +4,20 @@ from subprocess import check_call
 from threading import Event, Thread
 from time import sleep
 
-from EnergyController import Energy, EnergyController
 from gpiozero import Button, LEDBoard
-from LCD import LCD
-from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
-from MidiPlayer import MidiPlayer
-from PlayCassetteModeThread import PlayCassetteModeThread
-from PlayerButtonsController import PlayerButtonsController
-from PlayFileModeThread import PlayFileModeThread
-from PlayKeyboardModeThread import PlayKeyboardModeThread
-from PlayTeamModeThread import PlayTeamModeThread
-from RemoteController import RemoteController
-from TeamButtonsControllerImpl import TeamButtonsControllerImpl
-from utils import show_loading, throttle
+
+from zvonkohrator_pi_5.EnergyController import Energy, EnergyController
+from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
+from zvonkohrator_pi_5.MidiPlayer import MidiPlayer
+from zvonkohrator_pi_5.PlayCassetteModeThread import PlayCassetteModeThread
+from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
+from zvonkohrator_pi_5.PlayFileModeThread import PlayFileModeThread
+from zvonkohrator_pi_5.PlayKeyboardModeThread import PlayKeyboardModeThread
+from zvonkohrator_pi_5.PlayTeamModeThread import PlayTeamModeThread
+from zvonkohrator_pi_5.RemoteController import RemoteController
+from zvonkohrator_pi_5.TeamButtonsControllerImpl import TeamButtonsControllerImpl
+from zvonkohrator_pi_5.utils import show_loading, throttle
 
 
 def main():

@@ -1,8 +1,9 @@
 import time
 from threading import Event
 
-from MidiNoteOnHandler import MidiNoteOnHandler
 from mido import MidiFile
+
+from zvonkohrator_pi_5.MidiNoteOnHandler import MidiNoteOnHandler
 
 
 def extract_file_name(file_path: str):

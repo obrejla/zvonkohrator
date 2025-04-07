@@ -2,9 +2,10 @@ import time
 from threading import Event
 
 import rtmidi
-from EnergyController import EnergyController
-from LCD import LCD
-from MidiCommandHandlers import MidiCommandHandlers
+
+from zvonkohrator_pi_5.EnergyController import EnergyController
+from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.MidiCommandHandlers import MidiCommandHandlers
 
 
 class MidiListener:

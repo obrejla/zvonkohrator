@@ -2,8 +2,8 @@ from queue import Queue
 from threading import Event, Lock, RLock, Thread
 from time import sleep
 
-from EnergyController import Energy, EnergyController
-from LCD1602.LCD1602 import (
+from zvonkohrator_pi_5.EnergyController import Energy, EnergyController
+from zvonkohrator_pi_5.LCD1602.LCD1602 import (
     LCD1602,
 )
 
