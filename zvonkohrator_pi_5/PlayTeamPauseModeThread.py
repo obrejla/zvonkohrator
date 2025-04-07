@@ -9,7 +9,7 @@ from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
 from zvonkohrator_pi_5.TeamButtonsController import TeamButtonsController
 
 
-class PlayTeamModeThread(Thread):
+class PlayTeamPauseModeThread(Thread):
     internal_lock = Lock()
 
     def __init__(
@@ -21,7 +21,7 @@ class PlayTeamModeThread(Thread):
         player_buttons_controller: PlayerButtonsController,
         team_buttons_controller: TeamButtonsController,
     ):
-        super().__init__(daemon=True, name="PlayTeamModeThread")
+        super().__init__(daemon=True, name="PlayTeamPauseModeThread")
         self.energy_controller = energy_controller
         self.run_team_mode = run_team_mode
         self.lcd = lcd
@@ -52,19 +52,21 @@ class PlayTeamModeThread(Thread):
     def run(self):
         while True:
             if self.run_team_mode.wait():
-                print("wanna play team...")
-                acquired = PlayTeamModeThread.internal_lock.acquire(blocking=False)
+                print("wanna play team pause...")
+                acquired = PlayTeamPauseModeThread.internal_lock.acquire(blocking=False)
                 if acquired:
                     try:
                         print(
-                            "PlayTeamModeThread lock acquired! Starting 'play team mode'..."
+                            "PlayTeamPauseModeThread lock acquired! Starting 'play team pause mode'..."
                         )
-                        t = Thread(target=self.__run_team_mode, name="TeamModeRunner")
+                        t = Thread(
+                            target=self.__run_team_mode, name="TeamPauseModeRunner"
+                        )
                         t.start()
                         t.join()
-                        print("...ending 'play team mode'.")
+                        print("...ending 'play team pause mode'.")
                     finally:
-                        print("Releasing PlayTeamModeThread lock.")
-                        PlayTeamModeThread.internal_lock.release()
+                        print("Releasing PlayTeamPauseModeThread lock.")
+                        PlayTeamPauseModeThread.internal_lock.release()
                 else:
-                    print("but is already playing team :/")
+                    print("but is already playing team pause :/")
