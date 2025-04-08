@@ -3,17 +3,21 @@ from os import listdir
 from threading import Event, Lock
 from time import sleep
 
-from CassetteDetector import CassetteDetector
-from EnergyController import Energy, EnergyController
-from LCD import LCD
-from MidiNoteOnHandler import MidiNoteOnHandler
-from midiutils import extract_note_on_messages_in_absolute_time, play_from_time_position
 from mido import MidiFile
-from PlayerButtonsController import PlayerButtonsController
+
+from zvonkohrator_pi_5.CassetteDetector import CassetteDetector
+from zvonkohrator_pi_5.EnergyController import Energy, EnergyController
+from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.MidiNoteOnHandler import MidiNoteOnHandler
+from zvonkohrator_pi_5.midiutils import (
+    extract_note_on_messages_in_absolute_time,
+    play_from_time_position,
+)
+from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
 
 
 class CassettePlayerController:
-    LOCAL_DIR_PATH = "./zvonkohrator-pi-5/cassette-files"
+    LOCAL_DIR_PATH = "./zvonkohrator_pi_5/cassette-files"
     FILE_CASSETTE_NUMBER_PATTERN = re.compile(r"^(\d{1,2})-.*")
 
     def __init__(

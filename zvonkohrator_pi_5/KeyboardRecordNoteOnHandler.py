@@ -1,6 +1,6 @@
 from time import time_ns
 
-from MidiCommandHandler import NOTE_ON_BYTE, MidiCommandHandler
+from zvonkohrator_pi_5.MidiCommandHandler import NOTE_ON_BYTE, MidiCommandHandler
 
 
 class KeyboardRecordNoteOnHandler(MidiCommandHandler):
