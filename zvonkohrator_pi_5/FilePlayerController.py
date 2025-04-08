@@ -39,6 +39,17 @@ class FilePlayerController:
         self.should_interrupt_playing = Event()
         self.should_pause = Event()
         self.file_paths = []
+        self.on_finish_listeners = []
+
+    def add_on_finish_listener(self, listener):
+        self.on_finish_listeners.append(listener)
+
+    def remove_on_finish_listener(self, listener):
+        self.on_finish_listeners.remove(listener)
+
+    def __trigger_on_finish_listeners(self):
+        for listener in self.on_finish_listeners:
+            listener()
 
     def __current_file_path(self):
         return self.file_paths[self.current_file_index]
@@ -124,7 +135,7 @@ class FilePlayerController:
                             else len(self.file_paths) - 1
                         )
                         print(f"current_file={self.__current_file_path()}")
-                        self.__show_current_file()
+                        self.__show_init_display()
                     else:
                         print("...playig started in the meantime of going to PREV :/")
                 else:
@@ -195,6 +206,7 @@ class FilePlayerController:
             print(f"current_file_position={self.current_file_start_position}")
             self.is_playing.clear()
             self.should_pause.clear()
+            self.__trigger_on_finish_listeners()
         else:
             print("...but it is already PLAYING...")
 
@@ -207,7 +219,7 @@ class FilePlayerController:
                         self.current_file_index += 1
                         self.current_file_index %= len(self.file_paths)
                         print(f"current_file={self.__current_file_path()}")
-                        self.__show_current_file()
+                        self.__show_init_display()
                     else:
                         print("...playig started in the meantime of going to NEXT :/")
                 else:
