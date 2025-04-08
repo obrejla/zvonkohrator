@@ -74,6 +74,7 @@ DEFAULT_NOTE_OFF_DELAY = 0.15
 class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
     def __init__(self, midi_player: MidiPlayer):
         self.midi_player = midi_player
+        self.last_note = 0
         self._debug = False
 
     def handles(self, cmd: str):
@@ -81,6 +82,9 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
 
     def handle(self, msg, dt):
         self.handle_note_on(msg[1], msg[2])
+
+    def get_last_note(self):
+        return self.last_note
 
     def handle_note_on(self, note: int, velocity: int):
         # note_on with velocity 0 means "note off"
@@ -92,6 +96,7 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
                     f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
                 )
             self.midi_player.on_note_on(playable_tone)
+            self.last_note = note
             self.__send_auto_note_off_after_delay(note)
 
     @staticmethod
