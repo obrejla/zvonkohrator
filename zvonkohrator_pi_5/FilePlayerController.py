@@ -40,6 +40,7 @@ class FilePlayerController:
         self.should_pause = Event()
         self.file_paths = []
         self.on_finish_listeners = []
+        self.on_play_listeners = []
 
     def add_on_finish_listener(self, listener):
         self.on_finish_listeners.append(listener)
@@ -49,6 +50,16 @@ class FilePlayerController:
 
     def __trigger_on_finish_listeners(self):
         for listener in self.on_finish_listeners:
+            listener()
+
+    def add_on_play_listener(self, listener):
+        self.on_play_listeners.append(listener)
+
+    def remove_on_play_listener(self, listener):
+        self.on_play_listeners.remove(listener)
+
+    def __trigger_on_play_listeners(self):
+        for listener in self.on_play_listeners:
             listener()
 
     def __current_file_path(self):
@@ -178,6 +189,7 @@ class FilePlayerController:
             self.is_playing.set()
             self.is_paused.clear()
             self.should_interrupt_playing.clear()
+            self.__trigger_on_play_listeners()
 
             self.__show_playing()
             self.__show_current_file()

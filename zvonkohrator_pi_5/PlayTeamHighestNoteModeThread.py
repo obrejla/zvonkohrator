@@ -56,6 +56,7 @@ class PlayTeamHighestNoteModeThread(Thread):
         self.__show_init_message()
 
         self.file_player_controller.add_on_finish_listener(self.__display_teams)
+        self.file_player_controller.add_on_play_listener(self.__clear_teams)
         self.team_buttons_controller.add_on_pressed(self.__handle_team_pressed)
         self.player_buttons_controller.add_on_prev_pressed(self.__clear_teams)
         self.player_buttons_controller.add_on_stop_pressed(self.__clear_teams)
@@ -67,6 +68,7 @@ class PlayTeamHighestNoteModeThread(Thread):
         self.file_player_controller.run(self.run_team_mode)
 
         self.file_player_controller.remove_on_finish_listener(self.__display_teams)
+        self.file_player_controller.remove_on_play_listener(self.__clear_teams)
         self.team_buttons_controller.remove_on_pressed(self.__handle_team_pressed)
         self.player_buttons_controller.remove_on_prev_pressed(self.__clear_teams)
         self.player_buttons_controller.remove_on_stop_pressed(self.__clear_teams)
@@ -96,7 +98,7 @@ class PlayTeamHighestNoteModeThread(Thread):
         self.lcd.printout(
             f"{Team.GREEN.value}:{self.team_press_list[Team.GREEN]}".ljust(5)
         )
-        self.lcd.set_cursor(5, 1)
+        self.lcd.set_cursor(0, 1)
         self.lcd.printout(
             f"     {Team.BLUE.value}:{self.team_press_list[Team.BLUE]}".ljust(16)
         )
