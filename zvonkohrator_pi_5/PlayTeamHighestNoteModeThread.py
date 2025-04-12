@@ -111,7 +111,7 @@ class PlayTeamHighestNoteModeThread(Thread):
         self.lcd.bulk_modify(self.__display_teams_bulk)
 
     def __handle_team_pressed(self, team_id: Team):
-        print(f"Wanna handle team button press ({team_id})...")
+        print(f"Wanna handle team button press - highest note ({team_id})...")
         if (
             self.file_player_controller.is_playing.is_set()
             and self.team_press_list[team_id] == 0
