@@ -145,8 +145,10 @@ def main():
     def handle_team_mode():
         if energy_controller.is_energy_flowing():
             if run_team_pause_mode.is_set():
+                print("TEAM Highest Note!...")
                 switch_to_team_highest_note_mode()
             else:
+                print("TEAM Pause")
                 switch_to_team_pause_mode()
 
     def show_init_message_bulk():
@@ -200,7 +202,7 @@ def main():
 
     play_file_mode_button.when_pressed = switch_to_file_mode
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
-    play_team_mode_button.when_pressed = handle_team_mode
+    play_team_mode_button.when_pressed = throttle(lambda: handle_team_mode())
     play_cassette_mode_button.when_pressed = switch_to_cassette_mode
     shutdown_button.when_held = throttle(
         lambda: Thread(
