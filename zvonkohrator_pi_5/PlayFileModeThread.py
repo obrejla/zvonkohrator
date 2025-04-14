@@ -1,26 +1,11 @@
 from threading import Event, Lock, Thread
 from time import sleep
 
-from EnergyController import EnergyController
-from FilePlayerController import FilePlayerController
-from LCD import LCD
-from MidiNoteOnHandler import MidiNoteOnHandler
-from PlayerButtonsController import PlayerButtonsController
-from TeamButtonsController import Team, TeamButtonsController
-
-
-class DummyTeamButtonsController(TeamButtonsController):
-    def clear_leds(self):
-        pass
-
-    def turn_led_on(self, team_id: Team):
-        pass
-
-    def add_on_pressed(self, on_pressed_listener):
-        pass
-
-    def remove_on_pressed(self, on_pressed_listener):
-        pass
+from zvonkohrator_pi_5.EnergyController import EnergyController
+from zvonkohrator_pi_5.FilePlayerController import FilePlayerController
+from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.MidiNoteOnHandler import MidiNoteOnHandler
+from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
 
 
 class PlayFileModeThread(Thread):
@@ -44,7 +29,6 @@ class PlayFileModeThread(Thread):
             self.lcd,
             self.midi_note_on_handler,
             player_buttons_controller,
-            DummyTeamButtonsController(),
         )
 
     def __show_init_message_bulk(self):

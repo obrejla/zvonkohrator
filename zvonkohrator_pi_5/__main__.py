@@ -4,19 +4,23 @@ from subprocess import check_call
 from threading import Event, Thread
 from time import sleep
 
-from EnergyController import Energy, EnergyController
 from gpiozero import Button, LEDBoard
-from LCD import LCD
-from MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
-from MidiPlayer import MidiPlayer
-from PlayCassetteModeThread import PlayCassetteModeThread
-from PlayerButtonsController import PlayerButtonsController
-from PlayFileModeThread import PlayFileModeThread
-from PlayKeyboardModeThread import PlayKeyboardModeThread
-from PlayTeamModeThread import PlayTeamModeThread
-from RemoteController import RemoteController
-from TeamButtonsControllerImpl import TeamButtonsControllerImpl
-from utils import show_loading, throttle
+
+from zvonkohrator_pi_5.EnergyController import Energy, EnergyController
+from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
+from zvonkohrator_pi_5.MidiPlayer import MidiPlayer
+from zvonkohrator_pi_5.PlayCassetteModeThread import PlayCassetteModeThread
+from zvonkohrator_pi_5.PlayerButtonsController import PlayerButtonsController
+from zvonkohrator_pi_5.PlayFileModeThread import PlayFileModeThread
+from zvonkohrator_pi_5.PlayKeyboardModeThread import PlayKeyboardModeThread
+from zvonkohrator_pi_5.PlayTeamHighestNoteModeThread import (
+    PlayTeamHighestNoteModeThread,
+)
+from zvonkohrator_pi_5.PlayTeamPauseModeThread import PlayTeamPauseModeThread
+from zvonkohrator_pi_5.RemoteController import RemoteController
+from zvonkohrator_pi_5.TeamButtonsControllerImpl import TeamButtonsControllerImpl
+from zvonkohrator_pi_5.utils import show_loading, throttle
 
 
 def main():
@@ -33,7 +37,8 @@ def main():
 
     run_file_mode = Event()
     run_keyboard_mode = Event()
-    run_team_mode = Event()
+    run_team_pause_mode = Event()
+    run_team_highest_note_mode = Event()
     run_cassette_mode = Event()
 
     energy_controller = EnergyController()
@@ -68,9 +73,17 @@ def main():
         midi_note_on_handler,
         player_buttons_controller,
     ).start()
-    PlayTeamModeThread(
+    PlayTeamPauseModeThread(
         energy_controller,
-        run_team_mode,
+        run_team_pause_mode,
+        lcd,
+        midi_note_on_handler,
+        player_buttons_controller,
+        team_buttons_controller,
+    ).start()
+    PlayTeamHighestNoteModeThread(
+        energy_controller,
+        run_team_highest_note_mode,
         lcd,
         midi_note_on_handler,
         player_buttons_controller,
@@ -87,34 +100,56 @@ def main():
     def switch_to_file_mode():
         if energy_controller.is_energy_flowing():
             run_keyboard_mode.clear()
-            run_team_mode.clear()
+            run_team_pause_mode.clear()
             run_cassette_mode.clear()
+            run_team_highest_note_mode.clear()
             run_file_mode.set()
             game_mode_leds.value = (0, 0, 0, 1)
 
     def switch_to_keyboard_mode():
         if energy_controller.is_energy_flowing():
             run_file_mode.clear()
-            run_team_mode.clear()
+            run_team_pause_mode.clear()
             run_cassette_mode.clear()
+            run_team_highest_note_mode.clear()
             run_keyboard_mode.set()
             game_mode_leds.value = (1, 0, 0, 0)
 
-    def switch_to_team_mode():
+    def switch_to_team_pause_mode():
         if energy_controller.is_energy_flowing():
             run_file_mode.clear()
             run_keyboard_mode.clear()
             run_cassette_mode.clear()
-            run_team_mode.set()
+            run_team_highest_note_mode.clear()
+            run_team_pause_mode.set()
+            game_mode_leds.value = (0, 0, 1, 0)
+
+    def switch_to_team_highest_note_mode():
+        if energy_controller.is_energy_flowing():
+            run_file_mode.clear()
+            run_keyboard_mode.clear()
+            run_cassette_mode.clear()
+            run_team_pause_mode.clear()
+            run_team_highest_note_mode.set()
             game_mode_leds.value = (0, 0, 1, 0)
 
     def switch_to_cassette_mode():
         if energy_controller.is_energy_flowing():
             run_file_mode.clear()
             run_keyboard_mode.clear()
-            run_team_mode.clear()
+            run_team_pause_mode.clear()
+            run_team_highest_note_mode.clear()
             run_cassette_mode.set()
             game_mode_leds.value = (0, 1, 0, 0)
+
+    def handle_team_mode():
+        if energy_controller.is_energy_flowing():
+            if run_team_pause_mode.is_set():
+                print("TEAM Highest Note!...")
+                switch_to_team_highest_note_mode()
+            else:
+                print("TEAM Pause")
+                switch_to_team_pause_mode()
 
     def show_init_message_bulk():
         lcd.clear()
@@ -140,8 +175,9 @@ def main():
         in_shutdown.set()
         run_file_mode.clear()
         run_keyboard_mode.clear()
-        run_team_mode.clear()
+        run_team_pause_mode.clear()
         run_cassette_mode.clear()
+        run_team_highest_note_mode.clear()
         game_mode_leds.value = (0, 0, 0, 0)
         energy_controller.start_bypass()
         show_shutdown_message()
@@ -166,7 +202,7 @@ def main():
 
     play_file_mode_button.when_pressed = switch_to_file_mode
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
-    play_team_mode_button.when_pressed = switch_to_team_mode
+    play_team_mode_button.when_pressed = throttle(lambda: handle_team_mode())
     play_cassette_mode_button.when_pressed = switch_to_cassette_mode
     shutdown_button.when_held = throttle(
         lambda: Thread(

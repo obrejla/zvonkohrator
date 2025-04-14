@@ -1,22 +1,23 @@
 from threading import Thread
 
-from EnergyController import EnergyController
 from gpiozero import LED, Button
-from TeamButtonsController import Team, TeamButtonsController
-from utils import throttle
+
+from zvonkohrator_pi_5.EnergyController import EnergyController
+from zvonkohrator_pi_5.TeamButtonsController import Team, TeamButtonsController
+from zvonkohrator_pi_5.utils import throttle
 
 
 class TeamButtonsControllerImpl(TeamButtonsController):
     def __init__(self, energy_controller: EnergyController):
         self.energy_controller = energy_controller
         self.red_team_button = Button(21)
-        self.red_team_led = LED(1, active_high=False)
+        self.red_team_led = LED(25, active_high=False)
         self.green_team_button = Button(20)
-        self.green_team_led = LED(7, active_high=False)
+        self.green_team_led = LED(8, active_high=False)
         self.blue_team_button = Button(16)
-        self.blue_team_led = LED(8, active_high=False)
+        self.blue_team_led = LED(7, active_high=False)
         self.yellow_team_button = Button(12)
-        self.yellow_team_led = LED(25, active_high=False)
+        self.yellow_team_led = LED(1, active_high=False)
 
         self.clear_leds()
 

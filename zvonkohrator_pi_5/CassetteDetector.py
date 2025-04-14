@@ -1,7 +1,6 @@
-from threading import Thread
-
-from EnergyController import EnergyController
 from gpiozero import Button
+
+from zvonkohrator_pi_5.EnergyController import EnergyController
 
 
 class CassetteDetector:
@@ -18,47 +17,39 @@ class CassetteDetector:
         self.three = 0
         self.four = 0
 
-        self.one_button.when_pressed = lambda: Thread(
-            target=lambda: self.__set_one(1),
-            daemon=True,
-            name="HandleCassetteButtonOneOn",
-        ).start()
-        self.two_button.when_pressed = lambda: Thread(
-            target=lambda: self.__set_two(1),
-            daemon=True,
-            name="HandleCassetteButtonTwoOn",
-        ).start()
-        self.three_button.when_pressed = lambda: Thread(
-            target=lambda: self.__set_three(1),
-            daemon=True,
-            name="HandleCassetteButtonThreeOn",
-        ).start()
-        self.four_button.when_pressed = lambda: Thread(
-            target=lambda: self.__set_four(1),
-            daemon=True,
-            name="HandleCassetteButtonFourOn",
-        ).start()
+        self.one_button.when_pressed = self.__set_one_on
+        self.two_button.when_pressed = self.__set_two_on
+        self.three_button.when_pressed = self.__set_three_on
+        self.four_button.when_pressed = self.__set_four_on
 
-        self.one_button.when_released = lambda: Thread(
-            target=lambda: self.__set_one(0),
-            daemon=True,
-            name="HandleCassetteButtonOneOff",
-        ).start()
-        self.two_button.when_released = lambda: Thread(
-            target=lambda: self.__set_two(0),
-            daemon=True,
-            name="HandleCassetteButtonTwoOff",
-        ).start()
-        self.three_button.when_released = lambda: Thread(
-            target=lambda: self.__set_three(0),
-            daemon=True,
-            name="HandleCassetteButtonThreeOff",
-        ).start()
-        self.four_button.when_released = lambda: Thread(
-            target=lambda: self.__set_four(0),
-            daemon=True,
-            name="HandleCassetteButtonFourOff",
-        ).start()
+        self.one_button.when_released = self.__set_one_off
+        self.two_button.when_released = self.__set_two_off
+        self.three_button.when_released = self.__set_three_off
+        self.four_button.when_released = self.__set_four_off
+
+    def __set_one_on(self):
+        self.__set_one(1)
+
+    def __set_one_off(self):
+        self.__set_one(0)
+
+    def __set_two_on(self):
+        self.__set_two(1)
+
+    def __set_two_off(self):
+        self.__set_two(0)
+
+    def __set_three_on(self):
+        self.__set_three(1)
+
+    def __set_three_off(self):
+        self.__set_three(0)
+
+    def __set_four_on(self):
+        self.__set_four(1)
+
+    def __set_four_off(self):
+        self.__set_four(0)
 
     def __set_one(self, value: int):
         print(f"Someone wants to set cassette pin 1 to: {value}")
@@ -85,7 +76,7 @@ class CassetteDetector:
             print("...but energy does not flow :(")
 
     def __set_four(self, value: int):
-        print(f"Someone wants to set cassette pin 3 to: {value}")
+        print(f"Someone wants to set cassette pin 4 to: {value}")
         if self.energy_controller.is_energy_flowing():
             self.four = value
             self.__handle_cassette_change()

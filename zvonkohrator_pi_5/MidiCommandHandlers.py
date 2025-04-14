@@ -1,4 +1,4 @@
-from MidiCommandHandler import MidiCommandHandler
+from zvonkohrator_pi_5.MidiCommandHandler import MidiCommandHandler
 
 
 class MidiCommandHandlers:

@@ -16,8 +16,13 @@
 
 1. go to zvonkohrator project directory
 2. run `source ./venv/bin/activate` to activate python virtual environment
-3. run `python ./zvonkohrator-pi-5/__main__.py`
+3. run `python -m zvonkohrator_pi_5`
 
+### Tests
+
+Just run `pytest` command in the root directory.
+
+Tests are also automatically triggered when creating Pull Request on GitHub.
 
 ## Useful commands
 
