@@ -100,6 +100,10 @@ Controls for the player are:
 
 ### Teams
 
+This mode has 2 sub-modes, **Team Pause** and **Team High Note**. Switching between these 2 sub-modes is done by pressing the "Teams" button again and again.
+
+#### Team Pause
+
 It is actually just extended *Files* mode. It can play MIDI files from the local storage from `midi-files` directory, or from attached USD drive.
 
 But it is extended by the possibility to *Pause* the playing by the special *Team* buttons. Those are 4 colored buttons - when the team presses their button, it:
@@ -111,6 +115,14 @@ But it is extended by the possibility to *Pause* the playing by the special *Tea
 All teams can press/pause even in case when the file is already paused. They are displayed in the correct order on the LCD.
 
 Opeartor can then stop the song or un-pause it, in such a case the team button lights are turned off.
+
+#### Team High Note
+
+This is very similar to Team Pause mode, the difference is, that the teams do not pause the playing file by pressing their button, but once the button is pressed, the "value" of the currently played note is recorded for the team. Each team can press the button only once during the song. When the song is finished, the winning team is the one who "hit" the highest note.
+
+Operator can stop/pause/play songs as usual. Team buttons and their recorded values are reset on Play, or Stop.
+
+Tip: you can use the utility MIDI file generator `utils/scale_casino.py` to generate interesting "random scales", copy them e.g. on USB flash disk and use them.
 
 ## General functionality
 
