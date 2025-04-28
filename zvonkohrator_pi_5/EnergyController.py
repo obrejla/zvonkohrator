@@ -4,8 +4,6 @@ from threading import Event, Thread
 
 from gpiozero import Button
 
-from zvonkohrator_pi_5.utils import throttle
-
 
 class Energy(Enum):
     FLOWS = "energy-flows"
@@ -18,11 +16,8 @@ class EnergyController:
         self.energy_button = Button(5)
         self.energy_flow_listeners = []
 
-        throttled_energy_on = throttle(lambda: self.__energy_on())
-        throttled_energy_off = throttle(lambda: self.__energy_off())
-
-        self.energy_button.when_pressed = throttled_energy_on
-        self.energy_button.when_released = throttled_energy_off
+        self.energy_button.when_pressed = self.__energy_on
+        self.energy_button.when_released = self.__energy_off
 
     def init(self):
         # handle state when Energy is already provided during the startup
@@ -32,6 +27,7 @@ class EnergyController:
             self.__energy_off()
 
     def __energy_on(self):
+        print("Wanna start energy...")
         self.energy_flows.set()
         print("Energy flows!")
         for listener in self.energy_flow_listeners:
@@ -42,6 +38,7 @@ class EnergyController:
             ).start()
 
     def __energy_off(self):
+        print("Wanna stop energy...")
         self.energy_flows.clear()
         print("...no energy :/")
         for listener in self.energy_flow_listeners:

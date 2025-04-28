@@ -4,9 +4,34 @@ from time import sleep
 
 from zvonkohrator_pi_5.EnergyController import Energy, EnergyController
 from zvonkohrator_pi_5.LCD import LCD
-from zvonkohrator_pi_5.LCD1602.LCD1602 import (
-    LCD1602,
-)
+from zvonkohrator_pi_5.LCD1602.LCD1602 import LCD1602
+from zvonkohrator_pi_5.LCD1602.LCD1602Impl import LCD1602Impl
+
+
+class DummyLCD1602(LCD1602):
+    def command(self, cmd):
+        print(f"DummyLCD1602.command(): {cmd}")
+
+    def write(self, data):
+        print(f"DummyLCD1602.write(): {data}")
+
+    def setCursor(self, col, row):
+        print(f"DummyLCD1602.setCursor(): {col}, {row}")
+
+    def clear(self):
+        print("DummyLCD1602.clear()")
+
+    def printout(self, arg):
+        print(f"DummyLCD1602.printout(): {arg}")
+
+    def display(self):
+        print("DummyLCD1602.display()")
+
+    def begin(self, cols, lines):
+        print(f"DummyLCD1602.begin(): {cols}, {lines}")
+
+
+dummy_lcd1602 = DummyLCD1602()
 
 
 class LCDImpl(LCD):
@@ -14,7 +39,7 @@ class LCDImpl(LCD):
         self.energy_controller = energy_controller
         self.cols: int = 16
         self.rows: int = 2
-        self.lcd_impl: LCD1602 = None
+        self.lcd_impl: LCD1602 = dummy_lcd1602
         self.current_state = [" " * 16, " " * 16]
         self.last_col = 0
         self.last_row = 0
@@ -72,8 +97,14 @@ class LCDImpl(LCD):
                 self.last_rendered_state[1] = second_row
 
     def __get_lcd_impl(self):
-        if self.lcd_impl is None:  # + check whether the instance can be created?
-            self.lcd_impl = LCD1602(self.cols, self.rows)
+        if (
+            self.lcd_impl is dummy_lcd1602
+        ):  # + check whether the instance can be created?
+            try:
+                self.lcd_impl = LCD1602Impl(self.cols, self.rows)
+            except Exception as e:
+                self.lcd_impl = dummy_lcd1602
+                print(e)
         return self.lcd_impl
 
     def clear(self):
