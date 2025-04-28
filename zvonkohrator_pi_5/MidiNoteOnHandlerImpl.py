@@ -38,37 +38,36 @@ C4 = 72
 
 OCTAVE = 12
 
-PLAYABLE_TONES = {
-    C2: "C2",
-    Cis2: "Cis2",
-    D2: "D2",
-    Dis2: "Dis2",
-    E2: "E2",
-    F2: "F2",
-    Fis2: "Fis2",
-    G2: "G2",
-    Gis2: "Gis2",
-    A2: "A2",
-    B2: "B2",
-    H2: "H2",
-    C3: "C3",
-    Cis3: "Cis3",
-    D3: "D3",
-    Dis3: "Dis3",
-    E3: "E3",
-    F3: "F3",
-    Fis3: "Fis3",
-    G3: "G3",
-    Gis3: "Gis3",
-    A3: "A3",
-    B3: "B3",
-    H3: "H3",
-    C4: "C4",
-}
-
-
 # holy grail so the "cink" is the best
 DEFAULT_NOTE_OFF_DELAY = 0.15
+
+PLAYABLE_TONES = {
+    C2: ("C2", DEFAULT_NOTE_OFF_DELAY),
+    Cis2: ("Cis2", DEFAULT_NOTE_OFF_DELAY),
+    D2: ("D2", DEFAULT_NOTE_OFF_DELAY),
+    Dis2: ("Dis2", DEFAULT_NOTE_OFF_DELAY),
+    E2: ("E2", DEFAULT_NOTE_OFF_DELAY),
+    F2: ("F2", DEFAULT_NOTE_OFF_DELAY),
+    Fis2: ("Fis2", DEFAULT_NOTE_OFF_DELAY),
+    G2: ("G2", DEFAULT_NOTE_OFF_DELAY),
+    Gis2: ("Gis2", DEFAULT_NOTE_OFF_DELAY),
+    A2: ("A2", DEFAULT_NOTE_OFF_DELAY),
+    B2: ("B2", DEFAULT_NOTE_OFF_DELAY),
+    H2: ("H2", DEFAULT_NOTE_OFF_DELAY),
+    C3: ("C3", DEFAULT_NOTE_OFF_DELAY),
+    Cis3: ("Cis3", DEFAULT_NOTE_OFF_DELAY),
+    D3: ("D3", DEFAULT_NOTE_OFF_DELAY),
+    Dis3: ("Dis3", DEFAULT_NOTE_OFF_DELAY),
+    E3: ("E3", DEFAULT_NOTE_OFF_DELAY),
+    F3: ("F3", DEFAULT_NOTE_OFF_DELAY),
+    Fis3: ("Fis3", DEFAULT_NOTE_OFF_DELAY),
+    G3: ("G3", DEFAULT_NOTE_OFF_DELAY),
+    Gis3: ("Gis3", DEFAULT_NOTE_OFF_DELAY),
+    A3: ("A3", DEFAULT_NOTE_OFF_DELAY),
+    B3: ("B3", DEFAULT_NOTE_OFF_DELAY),
+    H3: ("H3", DEFAULT_NOTE_OFF_DELAY),
+    C4: ("C4", DEFAULT_NOTE_OFF_DELAY),
+}
 
 
 class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
@@ -90,14 +89,15 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
         # note_on with velocity 0 means "note off"
         if velocity > 0:
             playable_tone = MidiNoteOnHandlerImpl.__find_playable_tone(note)
-            playable_name = PLAYABLE_TONES[playable_tone]
+            playable_tone_name = PLAYABLE_TONES[playable_tone][0]
+            playable_tone_off_delay = PLAYABLE_TONES[playable_tone][1]
             if self._debug:
                 print(
-                    f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
+                    f"NOTE_ON:\nnote={note}\tplayable_tone={playable_tone}({playable_tone_name})\tvelocity={velocity}\toff_delay={playable_tone_off_delay}"
                 )
             self.midi_player.on_note_on(playable_tone)
             self.last_note = note
-            self.__send_auto_note_off_after_delay(note)
+            self.__send_auto_note_off_after_delay(note, playable_tone_off_delay)
 
     @staticmethod
     def __find_lowest_similar(note: int):
@@ -126,9 +126,9 @@ class MidiNoteOnHandlerImpl(MidiNoteOnHandler):
 
     def __note_off(self, note, velocity):
         playable_tone = MidiNoteOnHandlerImpl.__find_playable_tone(note)
-        playable_name = PLAYABLE_TONES[playable_tone]
+        playable_tone_name = PLAYABLE_TONES[playable_tone][0]
         if self._debug:
             print(
-                f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_name})\tvelocity={velocity}"
+                f"NOTE_OFF:\nnote={note}\tplayable_tone={playable_tone}({playable_tone_name})\tvelocity={velocity}"
             )
         self.midi_player.on_note_off(playable_tone)
