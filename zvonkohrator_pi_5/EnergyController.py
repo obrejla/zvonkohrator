@@ -1,7 +1,10 @@
 from enum import Enum
-from threading import Event
+from functools import partial
+from threading import Event, Thread
 
 from gpiozero import Button
+
+from zvonkohrator_pi_5.utils import throttle
 
 
 class Energy(Enum):
@@ -15,8 +18,11 @@ class EnergyController:
         self.energy_button = Button(5)
         self.energy_flow_listeners = []
 
-        self.energy_button.when_pressed = self.__energy_on
-        self.energy_button.when_released = self.__energy_off
+        throttled_energy_on = throttle(lambda: self.__energy_on())
+        throttled_energy_off = throttle(lambda: self.__energy_off())
+
+        self.energy_button.when_pressed = throttled_energy_on
+        self.energy_button.when_released = throttled_energy_off
 
     def init(self):
         # handle state when Energy is already provided during the startup
@@ -29,13 +35,21 @@ class EnergyController:
         self.energy_flows.set()
         print("Energy flows!")
         for listener in self.energy_flow_listeners:
-            listener(Energy.FLOWS)
+            Thread(
+                target=partial(listener, Energy.FLOWS),
+                daemon=True,
+                name="HandleEnergyOnThread",
+            ).start()
 
     def __energy_off(self):
         self.energy_flows.clear()
         print("...no energy :/")
         for listener in self.energy_flow_listeners:
-            listener(Energy.NONE)
+            Thread(
+                target=partial(listener, Energy.NONE),
+                daemon=True,
+                name="HandleEnergyOffThread",
+            ).start()
 
     def add_energy_flow_listener(self, listener):
         self.energy_flow_listeners.append(listener)
