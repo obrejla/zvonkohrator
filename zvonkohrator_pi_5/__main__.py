@@ -7,7 +7,7 @@ from time import sleep
 from gpiozero import Button, LEDBoard
 
 from zvonkohrator_pi_5.EnergyController import Energy, EnergyController
-from zvonkohrator_pi_5.LCD import LCD
+from zvonkohrator_pi_5.LCDImpl import LCDImpl
 from zvonkohrator_pi_5.MidiNoteOnHandlerImpl import MidiNoteOnHandlerImpl
 from zvonkohrator_pi_5.MidiPlayer import MidiPlayer
 from zvonkohrator_pi_5.PlayCassetteModeThread import PlayCassetteModeThread
@@ -58,7 +58,7 @@ def main():
         energy_controller, remote_controller
     )
 
-    lcd = LCD(energy_controller)
+    lcd = LCDImpl(energy_controller)
     PlayFileModeThread(
         energy_controller,
         run_file_mode,
