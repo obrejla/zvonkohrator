@@ -1,3 +1,4 @@
+from functools import partial
 from threading import Thread
 
 from gpiozero import LED, Button
@@ -56,11 +57,11 @@ class TeamButtonsControllerImpl(TeamButtonsController):
         self.on_pressed_listeners.append(on_pressed_listener)
 
     def __handle_pressed(self, team_id: Team):
-        print(f"Team {team_id} wants to pause a player!")
+        print(f"Team {team_id} wants to process an action!")
         if self.energy_controller.is_energy_flowing():
             for listener in self.on_pressed_listeners:
                 Thread(
-                    target=lambda: listener(team_id),
+                    target=partial(listener, team_id),
                     daemon=True,
                     name="HandleTeamButtonThread",
                 ).start()
