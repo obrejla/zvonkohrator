@@ -204,20 +204,17 @@ def main():
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
     play_team_mode_button.when_pressed = throttle(lambda: handle_team_mode())
     play_cassette_mode_button.when_pressed = switch_to_cassette_mode
-    shutdown_button.when_held = throttle(
-        lambda: Thread(
-            target=shutdown,
-            daemon=True,
-            name="HandleShutdownThread",
-        ).start()
-    )
-    shutdown_button.when_pressed = throttle(
-        lambda: Thread(
-            target=interrupt_shutdown,
-            daemon=True,
-            name="HandleInterruptShutdownThread",
-        ).start()
-    )
+    shutdown_button.when_held = lambda: Thread(
+        target=shutdown,
+        daemon=True,
+        name="HandleShutdownThread",
+    ).start()
+
+    shutdown_button.when_pressed = lambda: Thread(
+        target=interrupt_shutdown,
+        daemon=True,
+        name="HandleInterruptShutdownThread",
+    ).start()
 
     energy_controller.init()
     energy_controller.add_energy_flow_listener(handle_energy_flow)
