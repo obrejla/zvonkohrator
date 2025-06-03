@@ -1,5 +1,6 @@
 from enum import Enum
-from threading import Event
+from functools import partial
+from threading import Event, Thread
 
 from gpiozero import Button
 
@@ -26,16 +27,26 @@ class EnergyController:
             self.__energy_off()
 
     def __energy_on(self):
+        print("Wanna start energy...")
         self.energy_flows.set()
         print("Energy flows!")
         for listener in self.energy_flow_listeners:
-            listener(Energy.FLOWS)
+            Thread(
+                target=partial(listener, Energy.FLOWS),
+                daemon=True,
+                name="HandleEnergyOnThread",
+            ).start()
 
     def __energy_off(self):
+        print("Wanna stop energy...")
         self.energy_flows.clear()
         print("...no energy :/")
         for listener in self.energy_flow_listeners:
-            listener(Energy.NONE)
+            Thread(
+                target=partial(listener, Energy.NONE),
+                daemon=True,
+                name="HandleEnergyOffThread",
+            ).start()
 
     def add_energy_flow_listener(self, listener):
         self.energy_flow_listeners.append(listener)
