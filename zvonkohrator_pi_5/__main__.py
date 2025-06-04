@@ -2,7 +2,7 @@ from queue import Empty, Queue
 from signal import SIGINT, SIGTERM, signal
 from subprocess import check_call
 from threading import Event, Thread
-from time import sleep
+from time import sleep, time
 
 from gpiozero import Button, LEDBoard
 
@@ -33,7 +33,7 @@ def main():
     play_keyboard_mode_button = Button(11)
     play_team_mode_button = Button(0)
     play_cassette_mode_button = Button(10)
-    shutdown_button = Button(14, hold_time=2)
+    shutdown_button = Button(14)
 
     run_file_mode = Event()
     run_keyboard_mode = Event()
@@ -204,17 +204,33 @@ def main():
     play_keyboard_mode_button.when_pressed = switch_to_keyboard_mode
     play_team_mode_button.when_pressed = throttle(lambda: handle_team_mode())
     play_cassette_mode_button.when_pressed = switch_to_cassette_mode
-    shutdown_button.when_held = lambda: Thread(
-        target=shutdown,
-        daemon=True,
-        name="HandleShutdownThread",
-    ).start()
 
-    shutdown_button.when_pressed = lambda: Thread(
-        target=interrupt_shutdown,
-        daemon=True,
-        name="HandleInterruptShutdownThread",
-    ).start()
+    shutdown_press_time = None
+
+    def handle_shutdown_release():
+        nonlocal shutdown_press_time
+        duration = time() - shutdown_press_time
+        if duration >= 2:
+            # long press – shutdown
+            Thread(
+                target=shutdown,
+                daemon=True,
+                name="HandleShutdownThread",
+            ).start()
+        else:
+            # short press – interrupt
+            Thread(
+                target=interrupt_shutdown,
+                daemon=True,
+                name="HandleInterruptShutdownThread",
+            ).start()
+
+    def set_shutdown_press_time():
+        nonlocal shutdown_press_time
+        shutdown_press_time = time()
+
+    shutdown_button.when_pressed = set_shutdown_press_time
+    shutdown_button.when_released = handle_shutdown_release
 
     energy_controller.init()
     energy_controller.add_energy_flow_listener(handle_energy_flow)
